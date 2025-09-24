@@ -3,9 +3,22 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/webwavemall
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/webwave_mall}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  secret: ${JWT_SECRET:replace_with_long_secret}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
+
+mpesa:
+  env: ${MPESA_ENV:sandbox} # sandbox or production
+  consumer-key: ${MPESA_CONSUMER_KEY:}
+  consumer-secret: ${MPESA_CONSUMER_SECRET:}
+  shortcode: ${MPESA_SHORTCODE:174379}
+  passkey: ${MPESA_PASSKEY:}
+  callback-url: ${MPESA_CALLBACK_URL:http://localhost:8080/api/payments/webhooks/mpesa}
