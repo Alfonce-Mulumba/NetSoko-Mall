@@ -1,17 +1,25 @@
-# WebWave Mall - Starter Repository
+# WebWave Mall 🛒
 
-This is a starter project skeleton for the **WebWave Mall** marketplace (frontend + backend).
-Use this to open in VS Code, initialize git, and push to GitHub.
+WebWave Mall is a full-stack e-commerce platform (similar to Jumia/Kilimall) built with:
+- **Frontend:** React + Vite + TailwindCSS  
+- **Backend:** Java Spring Boot  
+- **Database:** PostgreSQL (recommended)  
+- **Payments:** M-Pesa & PayPal integration (backend-driven)  
 
-## Quick start
-1. Unzip and open the folder in VS Code.
-2. Initialize git:
-   ```
-   git init
-   git remote add origin https://github.com/your-username/webwave-mall.git
-   git add .
-   git commit -m "Initial project skeleton"
-   git push -u origin main
-   ```
-3. See `frontend/README.md` and `backend/README.md` for specific start commands.
+## 🚀 Features
+### Frontend
+- Modern responsive UI with TailwindCSS, transitions & hover effects  
+- Routing with React Router (`Home`, `Products`, `Cart`, `Checkout`, `Profile`, `Login`)  
+- Global state management using React Context API (cart + authentication)  
+- Reusable components (`Navbar`, `Footer`, `ProductCard`, `Loader`)  
+- API service layer ready for backend integration  
 
+### Backend
+- Spring Boot REST APIs for authentication, products, cart, orders, and payments  
+- JWT-based authentication  
+- Database support via JPA (PostgreSQL recommended, can switch to MySQL or H2 for testing)  
+- M-Pesa Daraja API + PayPal API integration  
+
+---
+
+## 📂 Project Structure

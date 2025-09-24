@@ -1,12 +1,27 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
-export default function ProductCard({title='Product', price=0}){
+export default function ProductCard({ product }) {
   return (
-    <div className="border rounded-2xl p-4 shadow-sm hover:shadow-md transition-transform transform hover:-translate-y-1">
-      <div className="h-40 bg-gray-100 rounded-md mb-4 flex items-center justify-center">Image</div>
-      <h3 className="font-semibold">{title}</h3>
-      <p className="text-green-600 font-bold">KES {price}</p>
-      <button className="mt-3 px-4 py-2 rounded bg-green-600 text-white">Add to cart</button>
-    </div>
+    <motion.div whileHover={{ y: -6 }} className="bg-white rounded-2xl shadow p-4">
+      <Link to={`/products/${product.id}`}>
+        <div className="h-48 w-full rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden">
+          {product.image ? (
+            <img src={product.image} alt={product.title} className="object-cover w-full h-full" />
+          ) : (
+            <div className="text-gray-400">No image</div>
+          )}
+        </div>
+      </Link>
+      <div className="mt-3">
+        <Link to={`/products/${product.id}`} className="font-semibold block">{product.title}</Link>
+        <p className="text-sm text-gray-500">{product.brand || ""}</p>
+        <div className="flex items-center justify-between mt-3">
+          <div className="text-lg font-bold text-brand">KES {product.price?.toLocaleString?.() ?? product.price}</div>
+          <button className="px-3 py-1 rounded-lg bg-brand text-white btn-glow">Add</button>
+        </div>
+      </div>
+    </motion.div>
   );
 }
