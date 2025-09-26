@@ -1,43 +1,55 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../services/api";
 import Loader from "../components/Loader";
-import { useApp } from "../context/AppContext";
+import axios from "axios";
 
-export default function ProductDetails() {
+const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const { addToCart } = useApp();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-    api.get(`/products/${id}`)
-      .then(res => { if (mounted) setProduct(res.data); })
-      .catch(() => { if (mounted) setProduct({ id, title: `Sample product ${id}`, price: 9999, image: null }); })
-      .finally(() => mounted && setLoading(false));
-    return () => mounted = false;
+    const fetchProduct = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(`/api/products/${id}`);
+        setProduct(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
   }, [id]);
 
   if (loading) return <Loader />;
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      <div className="bg-white rounded-2xl p-4 shadow">
-        <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
-          {product.image ? <img src={product.image} alt={product.title} className="object-cover h-full" /> : <div className="text-gray-400">No image</div>}
+    <div className="p-8">
+      {product && (
+        <div className="flex flex-col md:flex-row gap-10 items-center">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-80 h-80 object-cover rounded-lg shadow-lg hover:scale-105 transition"
+          />
+          <div>
+            <h2 className="text-3xl font-bold text-green-600 mb-3">
+              {product.name}
+            </h2>
+            <p className="text-gray-600 mb-4">{product.description}</p>
+            <p className="text-xl font-semibold text-green-700 mb-4">
+              KES {product.price}
+            </p>
+            <button className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition">
+              Add to Cart
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div className="bg-white rounded-2xl p-6 shadow">
-        <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
-        <p className="text-brand font-bold text-xl mb-4">KES {product.price?.toLocaleString?.() ?? product.price}</p>
-        <p className="text-gray-600 mb-4">Short description about the product goes here.</p>
-
-        <div className="flex gap-3">
-          <button onClick={() => addToCart(product, 1)} className="px-5 py-3 rounded-lg bg-brand text-white btn-glow">Add to cart</button>
-        </div>
-      </div>
+      )}
     </div>
   );
-}
+};
+
+export default ProductDetails;

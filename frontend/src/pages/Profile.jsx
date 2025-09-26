@@ -1,19 +1,22 @@
 import React from "react";
-import { useApp } from "../context/AppContext";
 
-export default function Profile() {
-  const { user } = useApp();
-
-  if (!user) return <div className="text-center py-16">Please login to view your profile.</div>;
-
+const Profile = () => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
-      <h2 className="text-2xl font-semibold mb-4">My Profile</h2>
-      <div className="space-y-2">
-        <div><strong>Name:</strong> {user.name}</div>
-        <div><strong>Email:</strong> {user.email}</div>
-        <div><strong>Phone:</strong> {user.phone || "-"}</div>
+    <div className="p-8">
+      <h2 className="text-2xl font-bold mb-6 text-green-600">My Profile</h2>
+      <div className="bg-white p-6 rounded-lg shadow space-y-4">
+        <p>
+          <span className="font-semibold">Name:</span> John Doe
+        </p>
+        <p>
+          <span className="font-semibold">Email:</span> john@example.com
+        </p>
+        <button className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
+          Edit Profile
+        </button>
       </div>
     </div>
   );
-}
+};
+
+export default Profile;

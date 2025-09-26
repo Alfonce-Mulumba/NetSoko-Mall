@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply font-sans bg-gray-50 text-gray-800;
+}
+
+.app-container {
+  @apply container mx-auto px-4;
+}
+
+button {
+  @apply transition duration-200;
+}

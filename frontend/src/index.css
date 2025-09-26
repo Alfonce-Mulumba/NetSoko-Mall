@@ -2,9 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* small utility additions */
-.container {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+/* Global styles */
+body {
+  @apply bg-gray-50 text-gray-800;
+  font-family: 'Inter', sans-serif;
+}
+
+button {
+  @apply transition duration-200;
 }

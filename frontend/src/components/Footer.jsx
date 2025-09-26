@@ -1,11 +1,13 @@
 import React from "react";
 
-export default function Footer() {
+function Footer() {
   return (
-    <footer className="bg-white border-t mt-12">
-      <div className="app-container py-6 text-center text-gray-600">
-        <p>&copy; {new Date().getFullYear()} WebWave Mall. All rights reserved.</p>
+    <footer className="bg-gray-800 text-gray-300 py-6 mt-10">
+      <div className="container mx-auto text-center">
+        <p>© {new Date().getFullYear()} Net-Soko. All Rights Reserved.</p>
       </div>
     </footer>
   );
 }
+
+export default Footer;
