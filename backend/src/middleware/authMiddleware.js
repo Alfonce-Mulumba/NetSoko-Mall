@@ -1,15 +1,12 @@
 // src/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
-import { pool, JWT_SECRET } from "../config/db.js";
+import { JWT_SECRET } from "../config/db.js";
 
 // Middleware: check if user has valid token
 export const protect = (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
 
     try {

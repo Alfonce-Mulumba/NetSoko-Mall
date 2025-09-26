@@ -1,5 +1,5 @@
 // backend/src/controllers/authController.js
-import { JWT_SECRET, pool } from "../config/db.js";
+import { JWT_SECRET, prisma } from "../config/db.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
@@ -27,10 +27,16 @@ export const registerUser = async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
     const code = Math.floor(100000 + Math.random() * 900000);
 
-    const newUser = await pool.query(
-      'INSERT INTO users(name, email, phone, password, verification_code, is_verified) VALUES($1,$2,$3,$4,$5,$6) RETURNING *',
-      [name, email, phone, hashed, code, false]
-    );
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        phone,
+        password: hashed,
+        verification_code: code,
+        is_verified: false,
+      },
+    });
 
     await sendVerificationEmail(email, code);
 
@@ -44,12 +50,15 @@ export const registerUser = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   try {
     const { email, code } = req.body;
-    const user = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+    const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user.rows.length) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if (user.rows[0].verification_code == code) {
-      await pool.query('UPDATE users SET is_verified=true WHERE email=$1', [email]);
+    if (user.verification_code == code) {
+      await prisma.user.update({
+        where: { email },
+        data: { is_verified: true },
+      });
       res.json({ message: 'Email verified. You can now login.' });
     } else {
       res.status(400).json({ message: 'Invalid verification code' });
@@ -64,24 +73,22 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
-    if (!user.rows.length) return res.status(404).json({ message: 'User not found' });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const dbUser = user.rows[0];
-
-    if (!dbUser.is_verified) {
+    if (!user.is_verified) {
       return res.status(403).json({ message: 'Please verify your email before logging in.' });
     }
 
-    const isMatch = await bcrypt.compare(password, dbUser.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: dbUser.id, email: dbUser.email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
     res.json({
       message: 'Login successful',
       token,
-      user: { id: dbUser.id, name: dbUser.name, email: dbUser.email }
+      user: { id: user.id, name: user.name, email: user.email }
     });
   } catch (err) {
     res.status(500).json({ message: 'Error logging in', error: err.message });

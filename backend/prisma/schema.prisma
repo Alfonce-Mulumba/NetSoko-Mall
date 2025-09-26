@@ -8,28 +8,49 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  phone    String? @unique
-  password String
-  role     String  @default("customer")
-  orders   Order[]
+  id                Int      @id @default(autoincrement())
+  name              String
+  email             String   @unique
+  phone             String?  @unique
+  password          String
+  role              String   @default("customer")
+  verification_code Int?
+  is_verified       Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orders            Order[]
+  cart              Cart[]
 }
 
 model Product {
-  id          Int     @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String
   price       Float
   stock       Int
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  orders      Order[]   @relation("OrderProducts")
+  cart        Cart[]
 }
 
 model Order {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  products  Product[] @relation("OrderProducts")
+  status    String    @default("pending")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Cart {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
-  products  String   // store product IDs as JSON string for simplicity
-  status    String   @default("pending")
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int      @default(1)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

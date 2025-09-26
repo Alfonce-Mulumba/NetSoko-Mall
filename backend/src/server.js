@@ -2,7 +2,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { pool } from "./config/db.js"; // import pool from db.js
+import { prisma } from "./config/db.js"; // use prisma
 
 // Import Routes
 import authRoutes from "./routes/authRoutes.js";
@@ -22,8 +22,8 @@ app.use(express.json());
 // ✅ Test DB connection
 (async () => {
   try {
-    await pool.connect();
-    console.log("✅ Connected to PostgreSQL");
+    await prisma.$connect();
+    console.log("✅ Connected to PostgreSQL via Prisma");
   } catch (err) {
     console.error("❌ DB Connection Error:", err.message);
   }
