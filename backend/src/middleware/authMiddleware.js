@@ -1,9 +1,10 @@
 // src/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
+import { prisma } from "../config/db.js";
 import { JWT_SECRET } from "../config/db.js";
 
 // Middleware: check if user has valid token
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
@@ -11,7 +12,17 @@ export const protect = (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
-      req.user = decoded; // attach decoded user info to request
+
+      // Fetch full user from DB
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.id },
+      });
+
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      req.user = user; // attach full user object to request
       return next();
     } catch (error) {
       return res.status(401).json({ message: "Not authorized, token failed" });

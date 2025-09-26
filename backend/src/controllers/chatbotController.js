@@ -1,4 +1,4 @@
-import Order from "../models/orderModel.js";
+import { prisma } from "../config/db.js";
 
 export const chatbotReply = async (req, res) => {
   try {

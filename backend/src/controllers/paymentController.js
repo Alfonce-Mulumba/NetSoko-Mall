@@ -1,41 +1,29 @@
 // backend/src/controllers/paymentController.js
 
-// Initialize payment (dummy example)
+// Stubbed payment controller for now (no real payment integration yet)
+
 export const initPayment = async (req, res) => {
   try {
-    const { amount, phone } = req.body;
-
-    if (!amount || !phone) {
-      return res.status(400).json({ message: "Amount and phone are required" });
-    }
-
-    // Normally you'd call M-Pesa API here...
+    // Later, you’ll integrate Stripe, PayPal, or M-Pesa here
     res.json({
-      success: true,
-      message: "Payment initialized",
-      data: { amount, phone }
+      message: "Payment initialization stub",
+      status: "success",
+      details: "This is just a placeholder. No real payment processed."
     });
-  } catch (err) {
-    res.status(500).json({ message: "Error initializing payment", error: err.message });
+  } catch (error) {
+    res.status(500).json({ message: "Error initializing payment", error: error.message });
   }
 };
 
-// Confirm payment (dummy example)
 export const confirmPayment = async (req, res) => {
   try {
-    const { transactionId } = req.body;
-
-    if (!transactionId) {
-      return res.status(400).json({ message: "Transaction ID is required" });
-    }
-
-    // Normally you'd verify with payment provider...
+    // Later, you’ll verify the payment provider response here
     res.json({
-      success: true,
-      message: "Payment confirmed",
-      data: { transactionId }
+      message: "Payment confirmation stub",
+      status: "success",
+      details: "This is just a placeholder. No real confirmation processed."
     });
-  } catch (err) {
-    res.status(500).json({ message: "Error confirming payment", error: err.message });
+  } catch (error) {
+    res.status(500).json({ message: "Error confirming payment", error: error.message });
   }
 };
