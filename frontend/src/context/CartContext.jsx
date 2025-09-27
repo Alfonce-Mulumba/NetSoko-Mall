@@ -1,22 +1,31 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
+  const [items, setItems] = useState(() => JSON.parse(localStorage.getItem("cart") || "[]"));
 
-  const addToCart = (product) => {
-    setCart((prev) => [...prev, product]);
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(items));
+  }, [items]);
+
+  const add = (product, qty = 1) => {
+    setItems((prev) => {
+      const idx = prev.findIndex(i => i.id === product.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx].quantity += qty;
+        return copy;
+      }
+      return [...prev, { ...product, quantity: qty }];
+    });
   };
 
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const clearCart = () => setCart([]);
+  const remove = (productId) => setItems(prev => prev.filter(i => i.id !== productId));
+  const clear = () => setItems([]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ items, add, remove, clear }}>
       {children}
     </CartContext.Provider>
   );

@@ -1,43 +1,40 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
-const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
+export default function Cart() {
+  const [items, setItems] = useState(JSON.parse(localStorage.getItem("cart") || "[]"));
+
+  const remove = (idx) => {
+    const next = items.slice();
+    next.splice(idx, 1);
+    setItems(next);
+    localStorage.setItem("cart", JSON.stringify(next));
+  };
 
   useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const { data } = await axios.get("/api/cart");
-        setCartItems(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchCart();
-  }, []);
+    // update cart count in navbar will reflect since we read localStorage there
+  }, [items]);
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6 text-green-600">Your Cart</h2>
-      {cartItems.length === 0 ? (
-        <p className="text-gray-600">Cart is empty</p>
-      ) : (
-        <ul className="space-y-4">
-          {cartItems.map((item) => (
-            <li
-              key={item.product._id}
-              className="flex justify-between items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition"
-            >
-              <span>{item.product.name}</span>
-              <span className="font-semibold text-green-700">
-                {item.qty} x KES {item.product.price}
-              </span>
-            </li>
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
+      <div className="grid gap-4">
+        <AnimatePresence>
+          {items.map((it, i) => (
+            <motion.div key={it.productId || i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="p-4 bg-white rounded shadow flex justify-between items-center">
+              <div>
+                <div className="font-semibold">{it.name}</div>
+                <div className="text-sm text-gray-500">${it.price} × {it.quantity}</div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => remove(i)} className="px-3 py-1 bg-red-500 text-white rounded">Remove</button>
+              </div>
+            </motion.div>
           ))}
-        </ul>
-      )}
+        </AnimatePresence>
+
+        {items.length === 0 && <p>Your cart is empty.</p>}
+      </div>
     </div>
   );
-};
-
-export default Cart;
+}

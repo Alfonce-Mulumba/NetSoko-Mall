@@ -1,22 +1,21 @@
 import React from "react";
+import { motion } from "framer-motion";
 
-const Profile = () => {
+export default function Profile() {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
   return (
-    <div className="p-8">
-      <h2 className="text-2xl font-bold mb-6 text-green-600">My Profile</h2>
-      <div className="bg-white p-6 rounded-lg shadow space-y-4">
-        <p>
-          <span className="font-semibold">Name:</span> John Doe
-        </p>
-        <p>
-          <span className="font-semibold">Email:</span> john@example.com
-        </p>
-        <button className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
-          Edit Profile
-        </button>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-6 rounded shadow">
+        <h2 className="text-2xl font-bold mb-4">Profile</h2>
+        {user ? (
+          <div>
+            <p><strong>Name:</strong> {user.name}</p>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Role:</strong> {user.role}</p>
+          </div>
+        ) : <p>Please login to view profile.</p>}
+      </motion.div>
     </div>
   );
-};
-
-export default Profile;
+}

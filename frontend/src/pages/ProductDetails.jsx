@@ -1,55 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
-import Loader from "../components/Loader";
-import axios from "axios";
+import api from "../utils/api";
+import { CartContext } from "../context/CartContext";
 
-const ProductDetails = () => {
+export default function ProductDetails() {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [p, setP] = useState(null);
+  const { add } = useContext(CartContext);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      setLoading(true);
-      try {
-        const { data } = await axios.get(`/api/products/${id}`);
-        setProduct(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
+  useEffect(()=> {
+    api.get(`/api/products/${id}`).then(r=>setP(r.data)).catch(()=>{});
   }, [id]);
 
-  if (loading) return <Loader />;
+  if (!p) return <div>Loading...</div>;
 
   return (
-    <div className="p-8">
-      {product && (
-        <div className="flex flex-col md:flex-row gap-10 items-center">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-80 h-80 object-cover rounded-lg shadow-lg hover:scale-105 transition"
-          />
-          <div>
-            <h2 className="text-3xl font-bold text-green-600 mb-3">
-              {product.name}
-            </h2>
-            <p className="text-gray-600 mb-4">{product.description}</p>
-            <p className="text-xl font-semibold text-green-700 mb-4">
-              KES {product.price}
-            </p>
-            <button className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition">
-              Add to Cart
-            </button>
-          </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <img src={p.image||"/placeholder.png"} alt={p.name} className="w-full object-cover rounded"/>
+      <div>
+        <h1 className="text-2xl font-bold">{p.name}</h1>
+        <p className="mt-2 text-gray-600">{p.description}</p>
+        <div className="mt-4 text-2xl font-bold">${p.price}</div>
+        <div className="mt-6">
+          <button className="btn btn-primary mr-2" onClick={()=> { add(p,1); alert("Added to cart"); }}>Add to cart</button>
         </div>
-      )}
+      </div>
     </div>
   );
-};
-
-export default ProductDetails;
+}

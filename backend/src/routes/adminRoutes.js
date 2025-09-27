@@ -1,33 +1,34 @@
 // backend/src/routes/adminRoutes.js
-import express from 'express';
-import { verifyAdmin } from '../middleware/authMiddleware.js';
-import { prisma } from '../config/db.js';
+import express from "express";
+import {
+  getProducts,
+  deleteProduct,
+  getUsers,
+  deleteUser,
+  getOrders,
+  updateOrder,
+  getAnalytics,
+} from "../controllers/adminController.js";
+import { protect, verifyAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Add product
-router.post('/products', verifyAdmin, async (req, res) => {
-  try {
-    const { name, price, stock } = req.body;
-    const product = await prisma.product.create({
-      data: { name, price: Number(price), stock: Number(stock) },
-    });
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ message: 'Error adding product', error: err.message });
-  }
-});
+// ✅ All admin routes require authentication + admin role
+router.use(protect, verifyAdmin);
 
-// Get all orders
-router.get('/orders', verifyAdmin, async (req, res) => {
-  try {
-    const orders = await prisma.order.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching orders', error: err.message });
-  }
-});
+// Product routes
+router.get("/products", getProducts);
+router.delete("/products/:id", deleteProduct);
+
+// User routes
+router.get("/users", getUsers);
+router.delete("/users/:id", deleteUser);
+
+// Order routes
+router.get("/orders", getOrders);
+router.put("/orders/:id", updateOrder);
+
+// Analytics
+router.get("/analytics", getAnalytics);
 
 export default router;

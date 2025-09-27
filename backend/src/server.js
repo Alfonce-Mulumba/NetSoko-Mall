@@ -2,14 +2,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { prisma } from "./config/db.js"; // use prisma
+import { prisma } from "./config/db.js"; // Prisma client
 
 // Import Routes
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import chatbotRoutes from "./routes/chatbotRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";  // ✅ admin
 import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
@@ -40,9 +40,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/chatbot", chatbotRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/orders", orderRoutes);
+
+// ✅ Admin routes (protected with middleware inside routes file)
+app.use("/api/admin", adminRoutes);
 
 // Server listen
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);

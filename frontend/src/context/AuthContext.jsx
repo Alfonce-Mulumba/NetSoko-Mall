@@ -1,37 +1,48 @@
+// frontend/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from "react";
-import axios from "../api/axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("net-soko-user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  // safe user parsing
+  const getStoredUser = () => {
+    const raw = localStorage.getItem("user");
+    if (!raw || raw === "undefined" || raw === "null") return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
     }
-  }, []);
-
-  const login = async (credentials) => {
-    const { data } = await axios.post("/api/auth/login", credentials);
-    setUser(data.user);
-    localStorage.setItem("net-soko-user", JSON.stringify(data.user));
-    return data;
   };
 
-  const register = async (details) => {
-    const { data } = await axios.post("/api/auth/register", details);
-    return data;
+  const [user, setUser] = useState(getStoredUser);
+  const [token, setToken] = useState(
+    localStorage.getItem("token") && localStorage.getItem("token") !== "undefined"
+      ? localStorage.getItem("token")
+      : null
+  );
+
+  useEffect(() => {
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+    else localStorage.removeItem("user");
+
+    if (token) localStorage.setItem("token", token);
+    else localStorage.removeItem("token");
+  }, [user, token]);
+
+  const login = (userData, jwt) => {
+    setUser(userData);
+    setToken(jwt);
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("net-soko-user");
+    setToken(null);
+    localStorage.clear();
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
