@@ -1,21 +1,24 @@
-// src/config/db.js
-import { PrismaClient } from "@prisma/client";
+// backend/src/config/db.js
 import dotenv from "dotenv";
-
 dotenv.config();
 
-// Create a new Prisma Client
+import { PrismaClient } from "@prisma/client";
+
 export const prisma = new PrismaClient();
 
-// For JWT secret
-export const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+// JWT secret (fallback to safe default in dev only)
+export const JWT_SECRET = process.env.JWT_SECRET || "supersecret_dev_jwt_key";
 
-// Test the connection
-(async () => {
+// Helper to gracefully shutdown Prisma on process end (optional but production-friendly)
+const shutdown = async () => {
   try {
-    await prisma.$connect();
-    console.log("✅ Connected to PostgreSQL with Prisma");
-  } catch (err) {
-    console.error("❌ Prisma connection error:", err.message);
+    await prisma.$disconnect();
+    // console.log("Prisma disconnected");
+  } catch (e) {
+    // console.error("Error disconnecting Prisma", e);
   }
-})();
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+process.on("exit", shutdown);

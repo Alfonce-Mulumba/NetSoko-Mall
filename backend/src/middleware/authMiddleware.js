@@ -1,7 +1,6 @@
 // src/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
-import { prisma } from "../config/db.js";
-import { JWT_SECRET } from "../config/db.js";
+import { prisma, JWT_SECRET } from "../config/db.js";
 
 // Middleware: check if user has valid token
 export const protect = async (req, res, next) => {
@@ -42,3 +41,7 @@ export const verifyAdmin = (req, res, next) => {
     return res.status(403).json({ message: "Access denied, admin only" });
   }
 };
+
+// ✅ alias for backward compatibility
+export { protect as authMiddleware };
+export { verifyAdmin as adminMiddleware };
