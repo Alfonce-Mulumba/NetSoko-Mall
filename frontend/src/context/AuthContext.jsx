@@ -1,49 +1,76 @@
-// frontend/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from "react";
+import api from "../api/index.js";
+import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // safe user parsing
-  const getStoredUser = () => {
-    const raw = localStorage.getItem("user");
-    if (!raw || raw === "undefined" || raw === "null") return null;
+  const nav = useNavigate();
+
+  const [user, setUser] = useState(() => {
     try {
-      return JSON.parse(raw);
+      return JSON.parse(localStorage.getItem("user") || "null");
     } catch {
+      localStorage.removeItem("user");
       return null;
     }
-  };
-
-  const [user, setUser] = useState(getStoredUser);
-  const [token, setToken] = useState(
-    localStorage.getItem("token") && localStorage.getItem("token") !== "undefined"
-      ? localStorage.getItem("token")
-      : null
-  );
+  });
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) localStorage.setItem("user", JSON.stringify(user));
-    else localStorage.removeItem("user");
+    if (token) {
+      const usr = JSON.parse(localStorage.getItem("user") || "null");
+      setUser(usr);
+    } else {
+      setUser(null);
+    }
+  }, [token]);
 
-    if (token) localStorage.setItem("token", token);
-    else localStorage.removeItem("token");
-  }, [user, token]);
-
-  const login = (userData, jwt) => {
-    setUser(userData);
-    setToken(jwt);
+  const login = async (email, password) => {
+    setLoading(true);
+    const res = await api.login({ email, password });
+    const { token: t, user: u } = res.data;
+    localStorage.setItem("token", t);
+    localStorage.setItem("user", JSON.stringify(u));
+    setToken(t);
+    setUser(u);
+    setLoading(false);
+    return res.data;
   };
 
   const logout = () => {
-    setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setToken(null);
-    localStorage.clear();
+    setUser(null);
+    nav("/");
   };
 
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+const register = async (payload) => {
+  setLoading(true);
+  try {
+    const res = await api.register(payload);
+    setLoading(false);
+    return res.data;
+  } catch (err) {
+    setLoading(false);
+    throw new Error(
+      err?.response?.data?.message || "Registration failed"
+    );
+  }
+};
+
+  const value = {
+    user,
+    token,
+    loading,
+    login,
+    logout,
+    register,
+    setToken,
+    setUser,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

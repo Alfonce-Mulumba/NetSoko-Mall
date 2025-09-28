@@ -1,71 +1,52 @@
-// frontend/src/components/Navbar.jsx
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Bars3Icon, ShoppingBagIcon } from "@heroicons/react/24/outline";
-import LoginModal from "./auth/LoginModal";
-import RegisterModal from "./auth/RegisterModal";
+import { AuthContext } from "../context/AuthContext.jsx";
+import { CartContext } from "../context/CartContext.jsx";
 
 export default function Navbar() {
-  const [openLogin, setOpenLogin] = useState(false);
-  const [openRegister, setOpenRegister] = useState(false);
-  const navigate = useNavigate();
-
-  // ✅ safe cart parsing
-  const cartRaw = localStorage.getItem("cart");
-  const cartCount = cartRaw && cartRaw !== "undefined" ? JSON.parse(cartRaw).length : 0;
-
-  // ✅ safe user parsing
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw && userRaw !== "undefined" ? JSON.parse(userRaw) : null;
-
-  const logout = () => {
-    localStorage.clear();
-    navigate("/");
-    window.location.reload();
-  };
+  const { user, logout } = useContext(AuthContext);
+  const { items } = useContext(CartContext);
+  const [open, setOpen] = useState(false);
+  const nav = useNavigate();
 
   return (
-    <>
-      <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <button className="p-2">
-            <Bars3Icon className="w-6 h-6" />
-          </button>
-          <Link to="/" className="text-2xl font-bold">NetSoko</Link>
+    <nav className="bg-white shadow-sm">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <button className="p-2 md:hidden"><Bars3Icon className="w-6 h-6" /></button>
+          <Link to="/" className="text-2xl font-bold text-primary">NetSoko</Link>
         </div>
 
-        <div className="flex items-center gap-6">
-          <Link to="/products" className="hover:underline">Shop</Link>
-
-          {user?.role === "admin" && (
-            <Link to="/admin" className="text-sm bg-gray-900 text-white px-3 py-1 rounded">Admin</Link>
-          )}
-
+        <div className="hidden md:flex items-center gap-6">
+          <Link to="/products" className="text-sm hover:underline">Shop</Link>
+          <Link to="/admin" className="text-sm">Admin</Link>
           {user ? (
             <>
               <span className="text-sm">Hi, {user.name}</span>
-              <button onClick={logout} className="text-sm text-red-600">Logout</button>
+              <button className="text-sm text-red-600" onClick={() => { logout(); }}>Logout</button>
             </>
           ) : (
             <>
-              <button onClick={() => setOpenLogin(true)} className="text-sm">Login</button>
-              <button onClick={() => setOpenRegister(true)} className="text-sm">Register</button>
+              <Link to="/login" className="text-sm">Login</Link>
+              <Link to="/register" className="text-sm">Register</Link>
             </>
           )}
-
           <Link to="/cart" className="relative">
             <ShoppingBagIcon className="w-6 h-6" />
-            {cartCount > 0 && (
+            {items?.length > 0 && (
               <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                {cartCount}
+                {items.length}
               </span>
             )}
           </Link>
         </div>
-      </nav>
 
-      <LoginModal open={openLogin} setOpen={setOpenLogin} />
-      <RegisterModal open={openRegister} setOpen={setOpenRegister} />
-    </>
+        {/* small screen */}
+        <div className="md:hidden">
+          <button className="p-2" onClick={() => setOpen(!open)}>Menu</button>
+        </div>
+      </div>
+    </nav>
   );
 }

@@ -82,8 +82,8 @@ async function main() {
       category: "Mobile Phones",
       images: {
         create: [
-          { url: "https://via.placeholder.com/300x300?text=Smartphone+Front" },
-          { url: "https://via.placeholder.com/300x300?text=Smartphone+Back" },
+          { url: "https://placehold.com/300x300?text=Smartphone+Front" },
+          { url: "https://placehold.com/300x300?text=Smartphone+Back" },
         ],
       },
       sizes: {

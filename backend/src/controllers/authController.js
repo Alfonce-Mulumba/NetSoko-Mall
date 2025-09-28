@@ -28,18 +28,27 @@ const sendMail = async (to, subject, text) => {
   }
 };
 
-/**
- * Register: accepts { name, email, phone, countryCode, password }
- * - creates user with verification_code and verification_expires
- * - sends verification email with code
- */
 export const registerUser = async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
 
+    const existing = await prisma.user.findUnique({ where: { email } });
     const hashed = await bcrypt.hash(password, 12);
     const code = Math.floor(100000 + Math.random() * 900000);
-    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+    if (existing) {
+      if (existing.is_verified) {
+        return res.status(400).json({ message: "User already exists" });
+      } else {
+        await prisma.user.update({
+          where: { email },
+          data: { verification_code: code, verification_expires: expires, password: hashed },
+        });
+        await sendMail(email, "Verify your Net-Soko account", `Your verification code is: ${code}`);
+        return res.json({ message: "Verification code resent. Please check your email." });
+      }
+    }
 
     await prisma.user.create({
       data: {
@@ -54,20 +63,19 @@ export const registerUser = async (req, res) => {
       },
     });
 
-    // ✅ Just use sendMail (you already defined it)
     await sendMail(email, "Verify your Net-Soko account", `Your verification code is: ${code}`);
+    return res.json({ message: "User registered. Check your email for verification code." });
+} catch (err) {
+  console.error("registerUser error:", err);
 
-    res.json({ message: "User registered. Check your email for verification code." });
-  } catch (err) {
-    console.error("registerUser error:", err);
-    res.status(500).json({ message: "Error registering", error: err.message });
+  if (err.code === "P2002" && err.meta?.target?.includes("email")) {
+    return res.status(400).json({ message: "Email already in use" });
   }
+
+  return res.status(500).json({ message: "Error registering", error: err.message });
+}
 };
 
-
-/**
- * Verify: { email, code }
- */
 export const verifyEmail = async (req, res) => {
   try {
     const { email, code } = req.body;
@@ -133,11 +141,6 @@ export const resendCode = async (req, res) => {
   }
 };
 
-/**
- * Login: { email, password }
- * - must be verified
- * - returns token and user basic info
- */
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -164,10 +167,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-/**
- * Forgot password: { email }
- * - generate token (random), store hashed token + expiry on user, email token (or link)
- */
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -203,10 +202,6 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-/**
- * Reset password: { email, token, newPassword }
- * - validate token by hashing token and comparing with stored hash and expiry
- */
 export const resetPassword = async (req, res) => {
   try {
     const { email, token, newPassword } = req.body;

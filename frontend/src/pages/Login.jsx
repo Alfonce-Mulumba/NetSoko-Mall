@@ -1,35 +1,34 @@
-import React from "react";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+export default function LoginPage() {
+  const { login } = useContext(AuthContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const nav = useNavigate();
+
+  const submit = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      nav("/");
+    } catch (err) {
+      alert(err?.response?.data?.message || "Error logging in");
+    }
+  };
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-green-50">
-      <form className="bg-white p-8 rounded-xl shadow-lg w-96 space-y-6 animate-fade-in">
-        <h2 className="text-2xl font-bold text-center text-green-600">Login</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400"
-        />
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
-        >
-          Login
-        </button>
-        <p className="text-sm text-center text-gray-500">
-          Don’t have an account?{" "}
-          <a href="/register" className="text-green-600 hover:underline">
-            Register
-          </a>
-        </p>
+    <div className="max-w-md mx-auto bg-white p-6 rounded">
+      <h2 className="text-xl font-bold mb-3">Login</h2>
+      <form onSubmit={submit} className="space-y-3">
+        <input value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-2 border rounded" placeholder="Email" />
+        <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full p-2 border rounded" placeholder="Password" />
+        <div className="flex justify-between items-center">
+          <button type="submit" className="bg-primary text-white px-4 py-2 rounded">Login</button>
+          <a href="/forgot" className="text-sm text-gray-600">Forgot?</a>
+        </div>
       </form>
     </div>
   );
-};
-
-export default Login;
+}

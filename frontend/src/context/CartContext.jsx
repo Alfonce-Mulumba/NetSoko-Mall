@@ -1,32 +1,52 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import api from "../api/index.js";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [items, setItems] = useState(() => JSON.parse(localStorage.getItem("cart") || "[]"));
+  const [items, setItems] = useState([]);
+  const [syncing, setSyncing] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items));
-  }, [items]);
-
-  const add = (product, qty = 1) => {
-    setItems((prev) => {
-      const idx = prev.findIndex(i => i.id === product.id);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx].quantity += qty;
-        return copy;
-      }
-      return [...prev, { ...product, quantity: qty }];
-    });
+  const fetchCart = async () => {
+    try {
+      const res = await api.getCart();
+      setItems(res.data);
+    } catch (err) {
+      // if not logged in or empty, keep local cart
+      const local = JSON.parse(localStorage.getItem("cart") || "[]");
+      setItems(local);
+    }
   };
 
-  const remove = (productId) => setItems(prev => prev.filter(i => i.id !== productId));
-  const clear = () => setItems([]);
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
-  return (
-    <CartContext.Provider value={{ items, add, remove, clear }}>
-      {children}
-    </CartContext.Provider>
-  );
+  const add = async (productId, quantity = 1) => {
+    setSyncing(true);
+    try {
+      const res = await api.addToCart({ productId, quantity });
+      await fetchCart();
+      setSyncing(false);
+      return res.data;
+    } catch (err) {
+      setSyncing(false);
+      throw err;
+    }
+  };
+
+  const remove = async (id) => {
+    await api.removeFromCart(id);
+    await fetchCart();
+  };
+
+  const value = {
+    items,
+    add,
+    remove,
+    fetchCart,
+    syncing,
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

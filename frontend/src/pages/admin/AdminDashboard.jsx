@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
-import api from "../../utils/api";
-import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import api from "../../api/index.js";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
-export default function AdminDashboard() {
+export default function AdminDashboard(){
   const [analytics, setAnalytics] = useState([]);
-
-  useEffect(()=> {
-    api.get("/api/admin/analytics").then(r=>setAnalytics(r.data)).catch(()=>{});
-  }, []);
-
+  useEffect(()=>{
+    (async ()=> {
+      const res = await api.adminGetAnalytics();
+      setAnalytics(res.data?.salesByDay || []);
+    })();
+  },[]);
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
-      <div className="card">
-        <h3 className="mb-2">Sales (last 7 days)</h3>
-        <div style={{ width: '100%', height: 250 }}>
+      <div className="bg-white p-4 rounded">
+        <h3 className="font-semibold mb-2">Sales (Recent)</h3>
+        <div style={{ width: "100%", height: 250 }}>
           <ResponsiveContainer>
             <LineChart data={analytics}>
-              <CartesianGrid stroke="#eee" />
-              <XAxis dataKey="label" />
+              <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#8884d8" />
+              <Line dataKey="total" stroke="#0369a1" />
             </LineChart>
           </ResponsiveContainer>
         </div>

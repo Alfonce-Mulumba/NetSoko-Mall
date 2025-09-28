@@ -1,52 +1,22 @@
 import React, { useEffect, useState } from "react";
+import api from "../../api/index.js";
 
-const ManageOrders = () => {
+export default function ManageOrders(){
   const [orders, setOrders] = useState([]);
-
-  const fetchOrders = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:5000/api/admin/orders", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setOrders(data);
-  };
-
-  const updateOrder = async (id, status) => {
-    const token = localStorage.getItem("token");
-    await fetch(`http://localhost:5000/api/admin/orders/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ status }),
-    });
-    fetchOrders();
-  };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
+  useEffect(()=>{ (async ()=>{ const r=await api.adminGetOrders(); setOrders(r.data); })(); },[]);
+  const update=async (id)=>{ const newStatus = prompt("New status (paid/shipped/completed/cancelled)"); if(!newStatus) return; await api.adminUpdateOrder(id, { status: newStatus }); setOrders(orders.map(o=> o.id===id? {...o, status:newStatus}: o)); };
   return (
     <div>
-      <h2>📦 Manage Orders</h2>
-      {orders.length === 0 ? (
-        <p>No orders found.</p>
-      ) : (
-        <ul>
-          {orders.map((o) => (
-            <li key={o.id}>
-              Order #{o.id} - {o.status} - {o.user?.email}
-              <button onClick={() => updateOrder(o.id, "shipped")}>Mark Shipped</button>
-              <button onClick={() => updateOrder(o.id, "completed")}>Mark Completed</button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <h2 className="text-2xl font-bold mb-4">Manage Orders</h2>
+      <div className="space-y-2">
+        {orders.map(o=>(
+          <div key={o.id} className="bg-white p-3 rounded">
+            <div className="flex justify-between"><div>Order #{o.id}</div><div>{o.status}</div></div>
+            <div className="mt-2">User: {o.user?.email}</div>
+            <div className="mt-2"><button onClick={()=>update(o.id)} className="text-blue-600">Update</button></div>
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
-
-export default ManageOrders;
+}

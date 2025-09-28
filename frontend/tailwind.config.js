@@ -1,15 +1,16 @@
-import forms from "@tailwindcss/forms";
-
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        primary: "#111827",   // dark
-        accent: "#7c3aed",    // purple-ish
-        brand: "#0ea5a4"
+        primary: "#0369a1", // blue
+        accent: "#06b6d4"
+      },
+      transitionProperty: {
+        height: "height"
       }
     }
   },
-  plugins: [forms],
+  plugins: []
 };
