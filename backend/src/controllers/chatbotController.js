@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { prisma } from "../config/db.js";
 
 // 1. Check order status
@@ -7,11 +8,11 @@ export const checkOrderStatus = async (req, res) => {
     if (!orderId) return res.status(400).json({ message: "Order ID is required" });
 
     const order = await prisma.order.findUnique({
-      where: { id: Number(orderId) },
+      where: { id: Number(orderId), userId },
       include: { orderItems: { include: { product: true } } },
     });
 
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order) return res.status(404).json({ message: "Order not found or not yours" });
 
     return res.json({
       orderId: order.id,
@@ -29,9 +30,18 @@ export const checkOrderStatus = async (req, res) => {
 };
 
 // 2. Report a problem
+const transporter = nodemailer.createTransport({
+  service: "gmail", // still Gmail for simplicity
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// 2. Report a problem
 export const reportProblem = async (req, res) => {
   try {
-    const userId = req.user.id; // authenticated user
+    const userId = req.user.id;
     const { message } = req.body;
     if (!message) return res.status(400).json({ message: "Message is required" });
 
@@ -40,9 +50,21 @@ export const reportProblem = async (req, res) => {
       include: { user: true },
     });
 
-    // (Optional) Notify admin via email
-    // Here we just log, but in prod you’d send nodemailer to admin inbox
-    console.log(`🚨 New complaint from ${complaint.user.email}: ${complaint.message}`);
+    // ✅ Notify Admin by email
+    await transporter.sendMail({
+      from: `"NetSoko Chatbot" <${process.env.EMAIL_USER}>`,
+      to: process.env.ADMIN_EMAIL,
+      subject: `🚨 New Complaint from ${complaint.user.email}`,
+      text: `Complaint ID: ${complaint.id}\nUser: ${complaint.user.email}\n\n${complaint.message}`,
+    });
+
+    // ✅ Acknowledge User by email
+    await transporter.sendMail({
+      from: `"NetSoko Support" <${process.env.EMAIL_USER}>`,
+      to: complaint.user.email,
+      subject: "Your complaint has been received",
+      text: `Hello ${complaint.user.name},\n\nWe’ve received your complaint:\n"${complaint.message}"\n\nOur support team will reach out shortly.\n\nComplaint ID: ${complaint.id}`,
+    });
 
     return res.json({
       message: "Your complaint has been received. We will reach out via email.",
@@ -52,3 +74,4 @@ export const reportProblem = async (req, res) => {
     res.status(500).json({ message: "Error reporting problem", error: err.message });
   }
 };
+

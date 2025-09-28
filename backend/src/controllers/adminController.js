@@ -175,3 +175,41 @@ export const getAnalytics = async (req, res) => {
     res.status(500).json({ message: "Error fetching analytics", error: error.message });
   }
 };
+// Get all complaints (admin only)
+export const getComplaints = async (req, res) => {
+  try {
+    const complaints = await prisma.complaint.findMany({
+      include: { user: { select: { id: true, email: true, name: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(complaints);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching complaints", error: err.message });
+  }
+};
+
+// Mark complaint as read
+export const markComplaintRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const complaint = await prisma.complaint.update({
+      where: { id: Number(id) },
+      data: { isRead: true },
+    });
+    res.json({ message: "Complaint marked as read", complaint });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating complaint", error: err.message });
+  }
+};
+
+// Get unread complaints count
+export const getUnreadComplaintsCount = async (req, res) => {
+  try {
+    const count = await prisma.complaint.count({
+      where: { isRead: false },
+    });
+    res.json({ unreadCount: count });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching unread complaints", error: err.message });
+  }
+};

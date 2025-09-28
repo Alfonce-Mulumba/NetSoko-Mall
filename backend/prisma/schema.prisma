@@ -42,7 +42,7 @@ model Product {
   images     ProductImage[]
   sizes      ProductSize[]
   orderItems OrderItem[]
-  cart       Cart[] // ✅ add this line (opposite of Cart.product)
+  cart       Cart[]
 }
 
 model ProductImage {
@@ -110,6 +110,7 @@ model Complaint {
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   message   String
+  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
   status    String   @default("open") // open, in_progress, resolved
 }

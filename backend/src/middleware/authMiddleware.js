@@ -1,8 +1,6 @@
-// src/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
 import { prisma, JWT_SECRET } from "../config/db.js";
 
-// Middleware: check if user has valid token
 export const protect = async (req, res, next) => {
   let token;
 

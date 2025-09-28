@@ -2,17 +2,10 @@
 import { prisma } from "../config/db.js";
 import { sendMail } from "../utils/email.js";
 
-/**
- * Place order from the user's cart
- */
-// src/controllers/orderController.js
-
 export const placeOrder = async (req, res) => {
   try {
     const userId = req.user.id;
     const { deliveryAddressId} = req.body;
-
-    // 1. Validate address belongs to user
     const address = await prisma.deliveryAddress.findUnique({
       where: { id: Number(deliveryAddressId) },
     });

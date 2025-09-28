@@ -1,6 +1,7 @@
 // backend/src/routes/adminRoutes.js
 import express from "express";
 import { protect, verifyAdmin } from "../middleware/authMiddleware.js";
+import { getComplaints, markComplaintRead, getUnreadComplaintsCount } from "../controllers/adminController.js";
 
 import {
   bulkUploadJSON,
@@ -17,6 +18,9 @@ import {
 
 const router = express.Router();
 
+router.get("/complaints", protect, verifyAdmin, getComplaints);
+router.put("/complaints/:id/read", protect, verifyAdmin, markComplaintRead);
+router.get("/complaints/unread/count", protect, verifyAdmin, getUnreadComplaintsCount);
 // ✅ All admin routes require authentication + admin role
 router.use(protect, verifyAdmin);
 
