@@ -1,5 +1,6 @@
 // backend/src/routes/authRoutes.js
 import express from "express";
+import asyncHandler from "../middleware/asyncHandler.js";
 import {
   registerUser,
   loginUser,
@@ -12,15 +13,11 @@ import {
 const router = express.Router();
 
 // Public
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-
-// Verify email (POST body { email, code })
-router.post("/verify", verifyEmail);
-
-// Forgot / Reset
-router.post("/forgot", forgotPassword);      // { email }
-router.post("/reset", resetPassword);        // { email, token, newPassword }
+router.post("/register", asyncHandler(registerUser));
+router.post("/login", asyncHandler(loginUser));
+router.post("/verify", asyncHandler(verifyEmail));
+router.post("/forgot", asyncHandler(forgotPassword)); // if exists
+router.post("/reset", asyncHandler(resetPassword));   // if exists
 router.post("/resend-code", resendCode); 
 
 export default router;

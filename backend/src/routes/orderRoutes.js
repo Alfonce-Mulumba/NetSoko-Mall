@@ -1,5 +1,6 @@
 // backend/src/routes/orderRoutes.js
 import express from "express";
+import asyncHandler from "../middleware/asyncHandler.js";
 import {
   placeOrder,
   getOrders,
@@ -10,9 +11,9 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", protect, placeOrder);      // Place order
-router.get("/", protect, getOrders);        // User: get their orders
-router.get("/:id", protect, getOrderById);  // User/Admin: get single order
+router.post("/", asyncHandler(placeOrder));
+router.get("/", asyncHandler(getOrders));
+router.get("/:id", asyncHandler(getOrderById));  // User/Admin: get single order
 router.get("/admin/all", protect, getAllOrders); // Admin: all orders
 
 export default router;
