@@ -1,6 +1,6 @@
-# WebWave Mall 🛒
+# NetSoko Mall 🛒
 
-WebWave Mall is a full-stack e-commerce platform (similar to Jumia/Kilimall) built with:
+NetSoko Mall is a full-stack e-commerce platform built with:
 - **Frontend:** React + Vite + TailwindCSS  
 - **Backend:** Java Spring Boot  
 - **Database:** PostgreSQL (recommended)  
