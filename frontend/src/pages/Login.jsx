@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
+import ForgotPasswordModal from "../components/ForgotPasswordModal.jsx";
 
 export default function LoginPage() {
   const { login } = useContext(AuthContext);
@@ -26,9 +27,19 @@ export default function LoginPage() {
         <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full p-2 border rounded" placeholder="Password" />
         <div className="flex justify-between items-center">
           <button type="submit" className="bg-primary text-white px-4 py-2 rounded">Login</button>
-          <a href="/forgot" className="text-sm text-gray-600">Forgot?</a>
+           <button
+            type="button"
+            onClick={() => setShowForgotPassword(true)}
+            className="text-sm text-gray-600 underline"
+          >
+            Forgot?
+          </button>
         </div>
       </form>
+
+      {showForgotPassword && (
+        <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
+      )}
     </div>
   );
 }

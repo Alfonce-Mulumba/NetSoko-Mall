@@ -42,7 +42,13 @@ export default function ForgotPasswordModal({ open, setOpen }) {
               <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg">
                 <Dialog.Title className="text-lg font-medium mb-3">Reset password</Dialog.Title>
 
-                {message && <div className="text-sm text-green-700 bg-green-50 p-2 rounded mb-3">{message}</div>}
+          {message && (
+             <div className={`text-sm p-2 rounded mb-3 ${
+               message.includes("failed") ? "text-red-700 bg-red-50" : "text-green-700 bg-green-50"
+           }`}>
+               {message}
+  </div>
+)}
 
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <input value={email} onChange={(e)=>setEmail(e.target.value)} type="email" required
@@ -60,8 +66,6 @@ export default function ForgotPasswordModal({ open, setOpen }) {
           </div>
         </Dialog>
       </Transition>
-
-      {/* After sending code, show reset modal */}
       <ResetPasswordModal open={showReset} setOpen={setShowReset} email={email} parentClose={setOpen} />
     </>
   );

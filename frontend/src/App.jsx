@@ -12,6 +12,7 @@ import LoginPage from "./pages/Login.jsx";
 import RegisterPage from "./pages/Register.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import VerifyEmail from "./pages/VerifyEmail";
+import ResetPasswordModal from "./components/ResetPasswordModal";
 
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import ManageProducts from "./pages/admin/ManageProducts.jsx";
@@ -48,8 +49,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify" element={<VerifyEmail />} />
-
-
+          <Route path="/reset-password/:token" element={<ResetPasswordModal />} />
           <Route path="/admin" element={<PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>} />
           <Route path="/admin/products" element={<PrivateRoute role="admin"><ManageProducts /></PrivateRoute>} />
           <Route path="/admin/users" element={<PrivateRoute role="admin"><ManageUsers /></PrivateRoute>} />
