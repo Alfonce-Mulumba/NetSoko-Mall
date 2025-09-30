@@ -176,7 +176,7 @@ export const forgotPassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // generate a token (random string) and expiry (1 hour)
-    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
     const resetTokenHashed = crypto.createHash("sha256").update(resetToken).digest("hex");
     const resetExpires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
 
@@ -193,7 +193,7 @@ export const forgotPassword = async (req, res) => {
       email
     )}`;
 
-    await sendMail(email, "Reset your Net-Soko password", `Use this link to reset your password (valid 1 hour):\n\n${resetUrl}`);
+    await sendMail(email, "Reset your Net-Soko password", `Your password reset code is: ${resetToken} (valid 1 hour):\n\n${resetUrl}`);
 
     return res.json({ message: "Reset instructions sent to email (if it exists)." });
   } catch (err) {
@@ -224,6 +224,7 @@ export const resetPassword = async (req, res) => {
     }
 
     const hashed = await bcrypt.hash(newPassword, 12);
+
     await prisma.user.update({
       where: { email },
       data: {
@@ -233,9 +234,18 @@ export const resetPassword = async (req, res) => {
       },
     });
 
+    // Send notification email
+    const formattedDate = new Date().toLocaleString("en-KE", { timeZone: "Africa/Nairobi" });
+    await sendMail(
+      email,
+      "Your Net-Soko password was reset",
+      `Dear ${user.name || "Customer"},\n\nYour password was reset on ${formattedDate}.\n\nIf this wasn’t you, please contact support immediately.`
+    );
+
     return res.json({ message: "Password reset successful. You can now login with new password." });
   } catch (err) {
     console.error("resetPassword error:", err);
     return res.status(500).json({ message: "Error resetting password", error: err?.message || String(err) });
   }
 };
+

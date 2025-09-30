@@ -14,6 +14,8 @@ import NotFound from "./pages/NotFound.jsx";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPasswordModal from "./components/ResetPasswordModal";
 
+// admin pages + layout
+import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import ManageProducts from "./pages/admin/ManageProducts.jsx";
 import ManageUsers from "./pages/admin/ManageUsers.jsx";
@@ -50,12 +52,17 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify" element={<VerifyEmail />} />
           <Route path="/reset-password/:token" element={<ResetPasswordModal />} />
-          <Route path="/admin" element={<PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>} />
-          <Route path="/admin/products" element={<PrivateRoute role="admin"><ManageProducts /></PrivateRoute>} />
-          <Route path="/admin/users" element={<PrivateRoute role="admin"><ManageUsers /></PrivateRoute>} />
-          <Route path="/admin/orders" element={<PrivateRoute role="admin"><ManageOrders /></PrivateRoute>} />
-          <Route path="/admin/analytics" element={<PrivateRoute role="admin"><Analytics /></PrivateRoute>} />
 
+          {/* Admin nested routes (wrapped with PrivateRoute + AdminLayout) */}
+          <Route path="/admin" element={<PrivateRoute role="admin"><AdminLayout /></PrivateRoute>}>
+            <Route index element={<AdminDashboard />} /> {/* /admin */}
+            <Route path="products" element={<ManageProducts />} />
+            <Route path="users" element={<ManageUsers />} />
+            <Route path="orders" element={<ManageOrders />} />
+            <Route path="analytics" element={<Analytics />} />
+          </Route>
+
+          {/* fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

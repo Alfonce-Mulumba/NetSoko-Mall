@@ -1,7 +1,7 @@
 // frontend/src/components/auth/ForgotPasswordModal.jsx
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import api from "../../../utils/api";
+import api from "../api/index.js";
 import ResetPasswordModal from "./ResetPasswordModal";
 
 export default function ForgotPasswordModal({ open, setOpen }) {
@@ -16,10 +16,12 @@ export default function ForgotPasswordModal({ open, setOpen }) {
     setMessage("");
     try {
       // expects backend to accept /auth/forgot { email } and send reset code
-      await api.post("/auth/forgot", { email });
+      await api.forgot({ email });
       setMessage("If this email exists a reset code was sent. Check your inbox.");
       setShowReset(true);
     } catch (err) {
+      console.error("Reset error:", err);
+      console.error("Response data:", err.response?.data);
       setMessage(err.response?.data?.message || "Failed to request reset. Try again later.");
     } finally {
       setLoading(false);

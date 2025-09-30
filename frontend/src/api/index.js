@@ -18,8 +18,8 @@ export default {
   register: (data) => api.post("/auth/register", data),
   verify: (data) => api.post("/auth/verify", data),
   login: (data) => api.post("/auth/login", data),
-  forgot: (data) => api.post("/auth/forgot-password", data),
-  reset: (data) => api.post("/auth/reset-password", data),
+  forgot: (data) => api.post("/auth/forgot", data),
+  reset: (data) => api.post("/auth/reset", data),
   resend: (data) => api.post("/auth/resend-code", data), // ✅ FIXED
 
   // Products

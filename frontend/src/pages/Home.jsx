@@ -6,11 +6,16 @@ export default function Home() {
   const [featured, setFeatured] = useState([]);
 
   useEffect(() => {
-    (async () => {
+  (async () => {
+    try {
       const res = await api.getProducts({ limit: 8, sort: "newest" });
-      setFeatured(res.data);
-    })();
-  }, []);
+      setFeatured(res.data || []);  // ✅ plain array
+    } catch (err) {
+      console.error("Home fetch error:", err);
+      setFeatured([]);
+    }
+  })();
+}, []);
 
   return (
     <div>

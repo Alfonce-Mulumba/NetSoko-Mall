@@ -20,10 +20,12 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center gap-6">
           <Link to="/products" className="text-sm hover:underline">Shop</Link>
-          <Link to="/admin" className="text-sm">Admin</Link>
+            {user?.role === "admin" && (
+          <Link to="/admin" className="text-sm">Admin</Link>)}
           {user ? (
             <>
               <span className="text-sm">Hi, {user.name}</span>
+               <Link to="/orders" className="text-sm hover:underline">My Orders</Link>
               <button className="text-sm text-red-600" onClick={() => { logout(); }}>Logout</button>
             </>
           ) : (
@@ -40,6 +42,24 @@ export default function Navbar() {
               </span>
             )}
           </Link>
+          <form
+  onSubmit={(e) => {
+    e.preventDefault();
+    const query = e.target.search.value;
+    nav(`/products?q=${encodeURIComponent(query)}`);
+  }}
+  className="flex items-center border rounded overflow-hidden"
+>
+  <input
+    type="text"
+    name="search"
+    placeholder="Search products..."
+    className="px-2 py-1 text-sm outline-none"
+  />
+  <button type="submit" className="bg-primary text-white px-3 text-sm">
+    Search
+  </button>
+</form>
         </div>
 
         {/* small screen */}

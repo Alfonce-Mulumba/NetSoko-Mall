@@ -3,6 +3,10 @@ import express from "express";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
+import path from "path";
+import uploadRoutes from "./routes/uploadRoutes.js";
+import { fileURLToPath } from "url";
+
 
 import { prisma } from "./config/db.js"; // Prisma client
 import logger from "./utils/logger.js";
@@ -22,10 +26,11 @@ import deliveryRoutes from "./routes/deliveryRoutes.js";
 dotenv.config();
 
 const app = express();
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Security headers
 app.use(helmet());
@@ -73,6 +78,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/addresses", deliveryRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // 404 and error handler (must be AFTER routes)
 app.use(notFound);

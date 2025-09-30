@@ -7,6 +7,7 @@ export default function LoginPage() {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false); // 👈 added state
   const nav = useNavigate();
 
   const submit = async (e) => {
@@ -37,9 +38,10 @@ export default function LoginPage() {
         </div>
       </form>
 
-      {showForgotPassword && (
-        <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
-      )}
+       <ForgotPasswordModal
+        open={showForgotPassword}
+        setOpen={setShowForgotPassword}
+      />
     </div>
   );
 }

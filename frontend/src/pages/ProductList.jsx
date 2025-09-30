@@ -1,17 +1,31 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/index.js";
 import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
-  const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("newest");
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q") || "";
 
-  const fetch = async () => {
-    const res = await api.searchProducts({ name: q, category, sort, limit: 24 });
-    setProducts(res.data);
-  };
+const fetch = async () => {
+  try {
+    let res;
+    if (q || category || sort !== "newest") {
+      res = await api.searchProducts({ q, category, sort, limit: 24 });
+      setProducts(res.data.products || []);  // ✅ use nested array
+    } else {
+      res = await api.getProducts({ limit: 24, sort });
+      setProducts(res.data || []);           // ✅ getProducts returns raw array
+    }
+  } catch (err) {
+    console.error("Product fetch error:", err);
+    setProducts([]);
+  }
+};
+
 
   useEffect(() => { fetch(); }, [q, category, sort]);
 
