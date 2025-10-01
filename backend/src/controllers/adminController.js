@@ -1,10 +1,7 @@
-// backend/src/controllers/adminController.js
 import { prisma } from "../config/db.js";
-
-// Bulk upload from JSON
 export const bulkUploadJSON = async (req, res) => {
   try {
-    const { products } = req.body; // Expect array of products
+    const { products } = req.body;
     if (!products || !Array.isArray(products)) {
       return res.status(400).json({ message: "Invalid products data" });
     }
@@ -25,7 +22,6 @@ export const bulkUploadJSON = async (req, res) => {
   }
 };
 
-// Update discount
 export const applyDiscount = async (req, res) => {
   try {
     const { id } = req.params;
@@ -48,7 +44,6 @@ export const applyDiscount = async (req, res) => {
   }
 };
 
-// Update stock
 export const updateStock = async (req, res) => {
   try {
     const { id } = req.params;
@@ -65,7 +60,6 @@ export const updateStock = async (req, res) => {
   }
 };
 
-// ✅ Get all products
 export const getProducts = async (req, res) => {
   try {
     const products = await prisma.product.findMany();
@@ -75,7 +69,6 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ✅ Delete product by ID
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,7 +83,6 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
-// ✅ Get all users
 export const getUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
@@ -110,7 +102,6 @@ export const getUsers = async (req, res) => {
   }
 };
 
-// ✅ Delete user by ID
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -125,7 +116,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// ✅ Get all orders
 export const getOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
@@ -140,7 +130,6 @@ export const getOrders = async (req, res) => {
   }
 };
 
-// ✅ Update order status
 export const updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -157,7 +146,6 @@ export const updateOrder = async (req, res) => {
   }
 };
 
-// ✅ Analytics (counts)
 export const getAnalytics = async (req, res) => {
   try {
     const totalUsers = await prisma.user.count();
@@ -175,7 +163,7 @@ export const getAnalytics = async (req, res) => {
     res.status(500).json({ message: "Error fetching analytics", error: error.message });
   }
 };
-// Get all complaints (admin only)
+
 export const getComplaints = async (req, res) => {
   try {
     const complaints = await prisma.complaint.findMany({
@@ -188,7 +176,6 @@ export const getComplaints = async (req, res) => {
   }
 };
 
-// Mark complaint as read
 export const markComplaintRead = async (req, res) => {
   try {
     const { id } = req.params;
@@ -202,7 +189,6 @@ export const markComplaintRead = async (req, res) => {
   }
 };
 
-// Get unread complaints count
 export const getUnreadComplaintsCount = async (req, res) => {
   try {
     const count = await prisma.complaint.count({

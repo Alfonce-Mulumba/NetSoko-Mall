@@ -10,7 +10,6 @@ export const protect = async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
 
-      // Fetch full user from DB
       const user = await prisma.user.findUnique({
         where: { id: decoded.id },
       });
@@ -19,7 +18,7 @@ export const protect = async (req, res, next) => {
         return res.status(401).json({ message: "User not found" });
       }
 
-      req.user = user; // attach full user object to request
+      req.user = user;
       return next();
     } catch (error) {
       return res.status(401).json({ message: "Not authorized, token failed" });
@@ -31,7 +30,6 @@ export const protect = async (req, res, next) => {
   }
 };
 
-// Middleware: check if user is admin
 export const verifyAdmin = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     return next();
@@ -40,6 +38,5 @@ export const verifyAdmin = (req, res, next) => {
   }
 };
 
-// ✅ alias for backward compatibility
 export { protect as authMiddleware };
 export { verifyAdmin as adminMiddleware };

@@ -1,4 +1,3 @@
-// frontend/src/hooks/useAdminAuth.js
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -12,7 +11,7 @@ export default function useAdminAuth() {
     if (user && user.role === "admin") {
       setIsAdmin(true);
     } else {
-      navigate("/dashboard"); // redirect customer
+      navigate("/dashboard");
     }
     setLoading(false);
   }, [navigate]);

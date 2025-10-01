@@ -5,7 +5,7 @@ function Header() {
   return (
     <header className="bg-primary text-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center px-6 py-4">
-        <Link to="/" className="font-bold text-xl">Net-Soko</Link>
+        <Link to="/" className="font-bold text-xl">NetSoko</Link>
         <nav className="space-x-4">
           <Link to="/" className="hover:underline">Home</Link>
           <Link to="/products" className="hover:underline">Products</Link>

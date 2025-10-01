@@ -1,4 +1,3 @@
-// src/routes/productRoutes.js
 import express from "express";
 import {
   getProducts,
@@ -13,13 +12,11 @@ import { protect, verifyAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Public
-router.get("/search", searchProducts); // 🔍 Search & filter
+router.get("/search", searchProducts);
 router.get("/", getProducts);
 router.get("/:id", getProductById);
 
-// Admin
-router.post("/", createProduct);    // requires admin auth in real case
+router.post("/", createProduct);
 router.put("/:id", updateProduct);
 router.delete("/:id", deleteProduct);
 

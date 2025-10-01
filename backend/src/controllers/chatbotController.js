@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import { prisma } from "../config/db.js";
 
-// 1. Check order status
 export const checkOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.body;
@@ -12,7 +11,7 @@ export const checkOrderStatus = async (req, res) => {
       include: { orderItems: { include: { product: true } } },
     });
 
-    if (!order) return res.status(404).json({ message: "Order not found or not yours" });
+    if (!order) return res.status(404).json({ message: "Order not found" });
 
     return res.json({
       orderId: order.id,
@@ -25,20 +24,18 @@ export const checkOrderStatus = async (req, res) => {
       })),
     });
   } catch (err) {
-    res.status(500).json({ message: "Error checking order status", error: err.message });
+    res.status(500).json({ message: "Error checking order status, try again", error: err.message });
   }
 };
 
-// 2. Report a problem
 const transporter = nodemailer.createTransport({
-  service: "gmail", // still Gmail for simplicity
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-// 2. Report a problem
 export const reportProblem = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -50,7 +47,6 @@ export const reportProblem = async (req, res) => {
       include: { user: true },
     });
 
-    // ✅ Notify Admin by email
     await transporter.sendMail({
       from: `"NetSoko Chatbot" <${process.env.EMAIL_USER}>`,
       to: process.env.ADMIN_EMAIL,
@@ -58,7 +54,6 @@ export const reportProblem = async (req, res) => {
       text: `Complaint ID: ${complaint.id}\nUser: ${complaint.user.email}\n\n${complaint.message}`,
     });
 
-    // ✅ Acknowledge User by email
     await transporter.sendMail({
       from: `"NetSoko Support" <${process.env.EMAIL_USER}>`,
       to: complaint.user.email,

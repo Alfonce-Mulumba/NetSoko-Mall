@@ -1,9 +1,5 @@
-// src/controllers/deliveryController.js
 import { prisma } from "../config/db.js";
 
-/**
- * Create new delivery address
- */
 export const addAddress = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -19,9 +15,6 @@ export const addAddress = async (req, res) => {
   }
 };
 
-/**
- * Get all addresses for logged-in user
- */
 export const getAddresses = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -32,9 +25,6 @@ export const getAddresses = async (req, res) => {
   }
 };
 
-/**
- * Update address
- */
 export const updateAddress = async (req, res) => {
   try {
     const { id } = req.params;
@@ -56,9 +46,6 @@ export const updateAddress = async (req, res) => {
   }
 };
 
-/**
- * Delete address
- */
 export const deleteAddress = async (req, res) => {
   try {
     const { id } = req.params;

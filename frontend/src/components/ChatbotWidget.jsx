@@ -4,7 +4,7 @@ import api from "../api/index.js";
 
 export default function ChatbotWidget() {
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState("menu"); // "menu" | "status" | "report"
+  const [mode, setMode] = useState("menu");
   const [orderId, setOrderId] = useState("");
   const [message, setMessage] = useState("");
   const [reply, setReply] = useState(null);

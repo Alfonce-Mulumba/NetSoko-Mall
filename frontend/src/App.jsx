@@ -14,7 +14,6 @@ import NotFound from "./pages/NotFound.jsx";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPasswordModal from "./components/ResetPasswordModal";
 
-// admin pages + layout
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import ManageProducts from "./pages/admin/ManageProducts.jsx";
@@ -53,16 +52,14 @@ export default function App() {
           <Route path="/verify" element={<VerifyEmail />} />
           <Route path="/reset-password/:token" element={<ResetPasswordModal />} />
 
-          {/* Admin nested routes (wrapped with PrivateRoute + AdminLayout) */}
           <Route path="/admin" element={<PrivateRoute role="admin"><AdminLayout /></PrivateRoute>}>
-            <Route index element={<AdminDashboard />} /> {/* /admin */}
+            <Route index element={<AdminDashboard />} />
             <Route path="products" element={<ManageProducts />} />
             <Route path="users" element={<ManageUsers />} />
             <Route path="orders" element={<ManageOrders />} />
             <Route path="analytics" element={<Analytics />} />
           </Route>
 
-          {/* fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

@@ -1,4 +1,3 @@
-// backend/src/server.js
 import express from "express";
 import dotenv from "dotenv";
 import helmet from "helmet";
@@ -27,12 +26,10 @@ dotenv.config();
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
-// Security headers
 app.use(helmet());
 
 // CORS: allow frontend only by default (adjust FRONTEND_URL in .env)
@@ -40,10 +37,8 @@ const FRONTEND = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow non-browser tools (Postman) without origin
       if (!origin) return callback(null, true);
       if (origin === FRONTEND) return callback(null, true);
-      // optionally allow a list in env var CORS_WHITELIST separated by commas
       if (process.env.CORS_WHITELIST?.split(",").includes(origin)) return callback(null, true);
       return callback(new Error("Not allowed by CORS"));
     },
@@ -51,14 +46,10 @@ app.use(
   })
 );
 
-// Global rate limiter
 app.use(generalLimiter);
-
-// Body parsing with small limits
 app.use(express.json({ limit: "200kb" }));
 app.use(express.urlencoded({ extended: true, limit: "200kb" }));
 
-// Test DB connection
 (async () => {
   try {
     await prisma.$connect();
@@ -68,7 +59,6 @@ app.use(express.urlencoded({ extended: true, limit: "200kb" }));
   }
 })();
 
-// API Routes
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/payments", paymentRoutes);
@@ -80,11 +70,9 @@ app.use("/api/addresses", deliveryRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
 
-// 404 and error handler (must be AFTER routes)
 app.use(notFound);
 app.use(errorHandler);
 
-// Server listen
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
   console.log(`🚀 Server running on http://localhost:${PORT}`)

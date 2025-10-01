@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../api/index.js"; // ✅ use our central api wrapper
+import api from "../api/index.js";
 
 export default function VerifyEmail() {
   const { state } = useLocation();
@@ -36,7 +36,7 @@ export default function VerifyEmail() {
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded">
       <h2 className="text-xl font-bold mb-3">Enter verification code</h2>
-      <p className="text-gray-600 mb-4">We sent a code to {email}</p>
+      <p className="text-gray-600 mb-4">Verification code sent to {email}</p>
       {message && <p className="mb-2 text-sm text-red-600">{message}</p>}
       <form onSubmit={verify} className="space-y-3">
         <input

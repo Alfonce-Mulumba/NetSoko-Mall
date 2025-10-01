@@ -1,4 +1,3 @@
-// frontend/src/components/auth/RegisterModal.jsx
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import api from "../../../utils/api";
@@ -9,7 +8,7 @@ const COUNTRIES = [
   { code: "+1", label: "United States" },
   { code: "+44", label: "United Kingdom" },
   { code: "+233", label: "Ghana" },
-  { code: "+254", label: "Kenya" }, // keep common ones; add more if you want
+  { code: "+254", label: "Kenya" },
 ];
 
 export default function RegisterModal({ open, setOpen }) {
@@ -106,7 +105,6 @@ export default function RegisterModal({ open, setOpen }) {
         </Dialog>
       </Transition>
 
-      {/* Verify modal opens automatically after successful registration */}
       <VerifyModal open={showVerify} setOpen={setShowVerify} email={verifyEmail} onCloseParent={() => { setOpen(false); }} />
     </>
   );

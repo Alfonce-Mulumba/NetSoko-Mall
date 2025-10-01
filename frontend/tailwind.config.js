@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#0369a1", // blue
+        primary: "#0369a1",
         accent: "#06b6d4"
       },
       transitionProperty: {

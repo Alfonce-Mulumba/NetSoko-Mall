@@ -3,14 +3,13 @@ import React, { useState } from "react";
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hi! I’m SokoBot 🤖. How can I help you?" }
+    { from: "bot", text: "Hi! I’m NetSokoBot 🤖. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
 
   const handleSend = () => {
     if (!input.trim()) return;
     setMessages([...messages, { from: "user", text: input }]);
-    // Simulate simple AI
     if (input.toLowerCase().includes("order")) {
       setMessages(m => [...m, { from: "bot", text: "Checking your order status..." }]);
     } else {
@@ -29,7 +28,7 @@ export default function Chatbot() {
       </button>
       {open && (
         <div className="fixed bottom-20 right-6 w-80 bg-white border shadow-lg rounded-lg flex flex-col">
-          <div className="p-3 bg-primary text-white font-bold">SokoBot</div>
+          <div className="p-3 bg-primary text-white font-bold">NetSokoBot</div>
           <div className="flex-grow p-3 overflow-y-auto h-64">
             {messages.map((m, i) => (
               <div key={i} className={`mb-2 ${m.from === "bot" ? "text-left" : "text-right"}`}>

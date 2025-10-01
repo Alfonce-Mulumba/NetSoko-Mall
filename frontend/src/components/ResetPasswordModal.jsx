@@ -1,4 +1,3 @@
-// frontend/src/components/auth/ResetPasswordModal.jsx
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +17,6 @@ export default function ResetPasswordModal({ open, setOpen, email, parentClose }
     setLoading(true);
     setMessage("");
     try {
-      // expects backend endpoint /auth/reset { email, code, password }
       await api.reset({ email, token: form.code, newPassword: form.password });
        setShowSuccess(true);
       setOpen(false);
@@ -70,7 +68,6 @@ export default function ResetPasswordModal({ open, setOpen, email, parentClose }
         </Dialog>
       </Transition>
 
-      {/* ✅ Success confirmation */}
       <Transition show={showSuccess} as={Fragment}>
         <Dialog className="relative z-50" onClose={() => setShowSuccess(false)}>
           <Transition.Child as={Fragment} enter="ease-out duration-200" enterFrom="opacity-0" enterTo="opacity-100"

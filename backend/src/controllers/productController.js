@@ -1,7 +1,5 @@
-// src/controllers/productController.js
 import { prisma } from "../config/db.js";
 
-// ✅ Public: Get all products with images + sizes
 export const getProducts = async (req, res) => {
   try {
     const products = await prisma.product.findMany({
@@ -13,7 +11,6 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ✅ Public: Get product by ID
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -27,24 +24,21 @@ export const getProductById = async (req, res) => {
     res.status(500).json({ message: "Error fetching product", error: err.message });
   }
 };
-// src/controllers/productController.js
 
-// ✅ Search & filter products
 export const searchProducts = async (req, res) => {
   try {
     const {
-      q,              // search query (name, description)
-      category,       // filter by category
-      minPrice,       // price range
+      q,
+      category,
+      minPrice,
       maxPrice,
-      sort = "newest", // default sorting
+      sort = "newest",
       page = 1,
       limit = 10
     } = req.query;
 
     const filters = {};
 
-    // 🔎 Search by keyword
     if (q) {
       filters.OR = [
         { name: { contains: q, mode: "insensitive" } },
@@ -52,29 +46,24 @@ export const searchProducts = async (req, res) => {
       ];
     }
 
-    // 📂 Filter by category
     if (category) {
       filters.category = { equals: category };
     }
 
-    // 💰 Filter by price range
     if (minPrice || maxPrice) {
       filters.price = {};
       if (minPrice) filters.price.gte = parseFloat(minPrice);
       if (maxPrice) filters.price.lte = parseFloat(maxPrice);
     }
 
-    // 🔄 Sorting
-    let orderBy = { createdAt: "desc" }; // default newest
+    let orderBy = { createdAt: "desc" };
     if (sort === "price_asc") orderBy = { price: "asc" };
     if (sort === "price_desc") orderBy = { price: "desc" };
     if (sort === "newest") orderBy = { createdAt: "desc" };
 
-    // 📄 Pagination
     const skip = (Number(page) - 1) * Number(limit);
     const take = Number(limit);
 
-    // 📦 Query products
     const products = await prisma.product.findMany({
       where: filters,
       include: { images: true, sizes: true },
@@ -83,7 +72,6 @@ export const searchProducts = async (req, res) => {
       take,
     });
 
-    // 📊 Total count
     const total = await prisma.product.count({ where: filters });
 
     res.json({
@@ -99,8 +87,6 @@ export const searchProducts = async (req, res) => {
   }
 };
 
-
-// ✅ Admin: Create product
 export const createProduct = async (req, res) => {
   try {
     const { name, description, price, stock, category, images, sizes } = req.body;
@@ -124,7 +110,6 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// ✅ Admin: Update product
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -152,7 +137,6 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-// ✅ Admin: Delete product
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;

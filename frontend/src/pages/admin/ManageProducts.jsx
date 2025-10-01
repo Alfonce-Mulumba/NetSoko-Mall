@@ -7,9 +7,8 @@ export default function ManageProducts() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
-  const [images, setImages] = useState([]); // uploaded URLs
+  const [images, setImages] = useState([]);
 
-  // fetch products
   useEffect(() => {
     (async () => {
       const r = await api.adminGetProducts();
@@ -17,19 +16,17 @@ export default function ManageProducts() {
     })();
   }, []);
 
-  // delete product
   const remove = async (id) => {
     if (!confirm("Delete?")) return;
     await api.adminDeleteProduct(id);
     setProducts(products.filter((p) => p.id !== id));
   };
 
-  // upload multiple images
 const handleUpload = async (e) => {
   const files = e.target.files;
   const formData = new FormData();
   for (let f of files) {
-    formData.append("images", f); // must match backend
+    formData.append("images", f);
   }
 
   const res = await fetch("http://localhost:5000/api/upload", {
@@ -39,10 +36,9 @@ const handleUpload = async (e) => {
 
   const data = await res.json();
   console.log("Uploaded:", data.urls);
-  setImageUrls(data.urls); // store array of uploaded URLs
+  setImageUrls(data.urls);
 };
 
-  // create product
   const handleAdd = async (e) => {
     e.preventDefault();
     const body = {
@@ -50,7 +46,7 @@ const handleUpload = async (e) => {
       description,
       price,
       category,
-      images, // array
+      images,
     };
     const r = await api.adminCreateProductsBulkJSON(body);
     setProducts([...products, r.data]);

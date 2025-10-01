@@ -1,6 +1,5 @@
 import { prisma } from "../config/db.js";
 
-// User: submit complaint
 export const createComplaint = async (req, res) => {
   try {
     const { message } = req.body;
@@ -19,7 +18,6 @@ export const createComplaint = async (req, res) => {
   }
 };
 
-// Admin: view all complaints
 export const getAllComplaints = async (req, res) => {
   try {
     const complaints = await prisma.complaint.findMany({
@@ -33,7 +31,6 @@ export const getAllComplaints = async (req, res) => {
   }
 };
 
-// Admin: update complaint status
 export const updateComplaintStatus = async (req, res) => {
   try {
     const { id } = req.params;

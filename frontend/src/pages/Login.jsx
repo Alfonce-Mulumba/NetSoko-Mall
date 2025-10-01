@@ -7,7 +7,7 @@ export default function LoginPage() {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showForgotPassword, setShowForgotPassword] = useState(false); // 👈 added state
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const nav = useNavigate();
 
   const submit = async (e) => {

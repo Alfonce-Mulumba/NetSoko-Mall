@@ -1,4 +1,3 @@
-// backend/src/controllers/cartController.js
 import { prisma } from "../config/db.js";
 
 export const addToCart = async (req, res) => {
@@ -16,7 +15,7 @@ export const addToCart = async (req, res) => {
 
     res.status(201).json(cartItem);
   } catch (err) {
-    res.status(500).json({ message: 'Error adding to cart', error: err.message });
+    res.status(500).json({ message: 'Error adding product to cart', error: err.message });
   }
 };
 
@@ -41,6 +40,6 @@ export const removeFromCart = async (req, res) => {
     await prisma.cart.delete({ where: { id: Number(id) } });
     res.json({ message: 'Item removed' });
   } catch (err) {
-    res.status(500).json({ message: 'Error removing from cart', error: err.message });
+    res.status(500).json({ message: 'Error removing from cart, try again', error: err.message });
   }
 };

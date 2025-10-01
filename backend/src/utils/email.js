@@ -1,4 +1,3 @@
-// backend/src/utils/email.js
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
@@ -9,13 +8,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/**
- * Generic sendMail wrapper
- */
 export const sendMail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: `"Net-Soko" <${process.env.EMAIL_USER}>`,
+      from: `"NetSoko" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,

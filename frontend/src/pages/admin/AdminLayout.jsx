@@ -1,4 +1,3 @@
-// src/pages/admin/AdminLayout.jsx
 import React, { useContext, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext.jsx";
@@ -9,7 +8,7 @@ export default function AdminLayout() {
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
-      nav("/"); // redirect non-admins
+      nav("/");
     }
   }, [user, nav]);
 

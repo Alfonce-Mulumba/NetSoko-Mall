@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 export default function Toast() {
-  // lightweight global toast via localStorage simple approach
   const [msg, setMsg] = useState(null);
 
   useEffect(() => {

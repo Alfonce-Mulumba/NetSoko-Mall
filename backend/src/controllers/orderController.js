@@ -1,4 +1,3 @@
-// backend/src/controllers/orderController.js
 import { prisma } from "../config/db.js";
 import { sendMail } from "../utils/email.js";
 
@@ -14,7 +13,6 @@ export const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Invalid delivery address" });
     }
 
-    // 2. Get cart items
     const cartItems = await prisma.cart.findMany({
       where: { userId },
       include: { product: true },
@@ -24,13 +22,11 @@ export const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-    // 3. Calculate total
     const totalAmount = cartItems.reduce(
       (sum, item) => sum + item.product.price * item.quantity,
       0
     );
 
-    // 4. Create order + order items
     const order = await prisma.order.create({
       data: {
         userId,
@@ -50,21 +46,21 @@ export const placeOrder = async (req, res) => {
       },
     });
 
-    // 5. Clear the cart
     await prisma.cart.deleteMany({ where: { userId } });
 
-     // ✅ Fetch user
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    // ✅ Send order confirmation email
     await sendMail(
       user.email,
-      "Net-Soko Order Confirmation",
+      "NetSoko Order Confirmation",
       `
-      <h2>Thank you for shopping with us, ${user.name}!</h2>
+      <h2>Dear ${user.name}, Thank you for shopping with us😎</h2>
       <p>Your order <strong>#${order.id}</strong> has been placed successfully.</p>
       <p>Total amount: <strong>$${totalAmount}</strong></p>
       <p>We will notify you when your items are shipped.</p>
+      <p>To track your order status, login to your account, click chatbot assistant and enter order ID:<strong>#${order.id}</strong></p>
+      <p>Kind Regards</p>
+      <p>NetSoko Care</p>
       `
     );
 
@@ -75,9 +71,6 @@ export const placeOrder = async (req, res) => {
   }
 };
 
-/**
- * Get all orders for the logged-in user
- */
 export const getOrders = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -97,9 +90,6 @@ export const getOrders = async (req, res) => {
   }
 };
 
-/**
- * Get single order by ID (user can only view their own unless admin)
- */
 export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -129,9 +119,6 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-/**
- * Admin-only: view all orders
- */
 export const getAllOrders = async (req, res) => {
   try {
     if (req.user.role !== "admin") {

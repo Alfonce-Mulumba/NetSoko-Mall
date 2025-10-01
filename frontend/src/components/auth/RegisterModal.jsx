@@ -27,7 +27,7 @@ export default function RegisterModal({ open, setOpen }) {
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("role", res.data.user.role);
 
-      window.location.reload(); // refresh to update UI
+      window.location.reload();
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     } finally {

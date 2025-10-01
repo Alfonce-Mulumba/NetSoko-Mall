@@ -33,7 +33,7 @@ model Product {
   name        String
   description String
   price       Float
-  discount    Float?   @default(0) // % discount e.g. 10 = 10%
+  discount    Float?   @default(0)
   stock       Int
   category    String?
   createdAt   DateTime @default(now())
@@ -112,5 +112,5 @@ model Complaint {
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-  status    String   @default("open") // open, in_progress, resolved
+  status    String   @default("open")
 }

@@ -14,38 +14,31 @@ api.interceptors.request.use((config) => {
 });
 
 export default {
-  // Auth
   register: (data) => api.post("/auth/register", data),
   verify: (data) => api.post("/auth/verify", data),
   login: (data) => api.post("/auth/login", data),
   forgot: (data) => api.post("/auth/forgot", data),
   reset: (data) => api.post("/auth/reset", data),
-  resend: (data) => api.post("/auth/resend-code", data), // ✅ FIXED
+  resend: (data) => api.post("/auth/resend-code", data),
 
-  // Products
   getProducts: (params) => api.get("/products", { params }),
   getProductById: (id) => api.get(`/products/${id}`),
   searchProducts: (params) => api.get("/products/search", { params }),
 
-  // Cart
   addToCart: (data) => api.post("/cart/add", data),
   getCart: () => api.get("/cart"),
   removeFromCart: (id) => api.delete(`/cart/${id}`),
 
-  // Orders
   placeOrder: (data) => api.post("/orders", data),
   getOrders: () => api.get("/orders"),
   getOrderById: (id) => api.get(`/orders/${id}`),
 
-  // Addresses
   addAddress: (data) => api.post("/addresses", data),
   getAddresses: () => api.get("/addresses"),
 
-  // Chatbot
   checkOrderStatus: (data) => api.post("/chatbot/order-status", data),
   reportProblem: (data) => api.post("/chatbot/report", data),
 
-  // Admin
   adminGetProducts: () => api.get("/admin/products"),
   adminCreateProductsBulkJSON: (data) => api.post("/admin/products/bulk/json", data),
   adminUpdateStock: (id, body) => api.put(`/admin/products/${id}/stock`, body),

@@ -1,4 +1,3 @@
-// frontend/src/components/auth/VerifyModal.jsx
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import api from "../../../utils/api";
@@ -16,7 +15,6 @@ export default function VerifyModal({ open, setOpen, email, onCloseParent }) {
     setLoading(true);
     try {
       const res = await api.post("/auth/verify", { email, code });
-      // Expected: { token, user, message }
       const token = res.data.token;
       const user = res.data.user;
       if (token && user) {
@@ -25,7 +23,6 @@ export default function VerifyModal({ open, setOpen, email, onCloseParent }) {
         localStorage.setItem("role", user.role || "customer");
         setOpen(false);
         if (onCloseParent) onCloseParent();
-        // reload to update UI (navbar)
         window.location.reload();
       } else {
         setError("Verification succeeded but token/user not returned by server.");
@@ -39,11 +36,8 @@ export default function VerifyModal({ open, setOpen, email, onCloseParent }) {
 
   const handleResend = async () => {
     try {
-      // attempt to resend by registering same email (or create a resend endpoint)
       await api.post("/auth/register", { name: "resend", email, phone: "", password: "placeholder123" });
-      // If backend rejects duplicate, implement /auth/resend endpoint server-side.
     } catch (err) {
-      // ignore errors - better to implement /auth/resend on server
     }
   };
 
@@ -61,7 +55,7 @@ export default function VerifyModal({ open, setOpen, email, onCloseParent }) {
             leave="ease-in duration-150" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
             <Dialog.Panel className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
               <Dialog.Title className="text-lg font-medium mb-2">Verify your email</Dialog.Title>
-              <p className="text-sm text-gray-600 mb-4">We sent a verification code to <b>{email}</b>. Enter it below.</p>
+              <p className="text-sm text-gray-600 mb-4">We sent a verification code to <b>{email}</b>. Enter code below to verify.</p>
 
               {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded mb-3">{error}</div>}
 

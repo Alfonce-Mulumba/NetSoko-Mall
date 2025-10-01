@@ -1,11 +1,9 @@
-// prisma/seed.js
 import { prisma } from "../src/config/db.js";
 import bcrypt from "bcryptjs";
 
 async function main() {
   console.log("🌱 Starting seed...");
 
-  // Default admin
   const hashedPassword = await bcrypt.hash("Admin@123", 10);
   await prisma.user.upsert({
     where: { email: "admin@netsoko.com" },
@@ -22,7 +20,6 @@ async function main() {
 
   console.log("✅ Admin ready");
 
-  // Running Shoes
   await prisma.product.upsert({
     where: { name: "Running Shoes" },
     update: {},
@@ -48,7 +45,6 @@ async function main() {
     },
   });
 
-  // Laptop Pro
   await prisma.product.upsert({
     where: { name: "Laptop Pro" },
     update: {},
@@ -70,7 +66,6 @@ async function main() {
     },
   });
 
-  // Smartphone X
   await prisma.product.upsert({
     where: { name: "Smartphone X" },
     update: {},

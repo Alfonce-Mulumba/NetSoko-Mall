@@ -15,10 +15,10 @@ const fetch = async () => {
     let res;
     if (q || category || sort !== "newest") {
       res = await api.searchProducts({ q, category, sort, limit: 24 });
-      setProducts(res.data.products || []);  // ✅ use nested array
+      setProducts(res.data.products || []);
     } else {
       res = await api.getProducts({ limit: 24, sort });
-      setProducts(res.data || []);           // ✅ getProducts returns raw array
+      setProducts(res.data || []);
     }
   } catch (err) {
     console.error("Product fetch error:", err);

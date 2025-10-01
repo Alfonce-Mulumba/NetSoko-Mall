@@ -1,4 +1,3 @@
-// frontend/src/components/auth/ForgotPasswordModal.jsx
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import api from "../api/index.js";
@@ -15,7 +14,6 @@ export default function ForgotPasswordModal({ open, setOpen }) {
     setLoading(true);
     setMessage("");
     try {
-      // expects backend to accept /auth/forgot { email } and send reset code
       await api.forgot({ email });
       setMessage("If this email exists a reset code was sent. Check your inbox.");
       setShowReset(true);

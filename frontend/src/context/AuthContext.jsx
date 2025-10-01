@@ -61,16 +61,7 @@ const register = async (payload) => {
   }
 };
 
-  const value = {
-    user,
-    token,
-    loading,
-    login,
-    logout,
-    register,
-    setToken,
-    setUser,
-  };
+  const value = { user, token, loading, login, logout, register, setToken, setUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -7,7 +7,6 @@ const router = express.Router();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Storage setup
 const storage = multer.diskStorage({
   destination(req, file, cb) {
     cb(null, path.join(__dirname, "../../uploads/"));
@@ -17,7 +16,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// Allow only images
 function checkFileType(file, cb) {
   const filetypes = /jpg|jpeg|png/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -34,7 +32,6 @@ const upload = multer({
   fileFilter: (req, file, cb) => checkFileType(file, cb),
 });
 
-// POST /api/upload (multi-file)
 router.post("/", upload.array("images", 5), (req, res) => {
   try {
     const urls = req.files.map((f) => `/uploads/${f.filename}`);

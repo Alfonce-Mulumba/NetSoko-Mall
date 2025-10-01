@@ -1,4 +1,3 @@
-// frontend/src/components/auth/LoginModal.jsx
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import api from "../../../utils/api";
@@ -18,7 +17,6 @@ export default function LoginModal({ open, setOpen }) {
     setError("");
     try {
       const res = await api.post("/auth/login", { email: form.email, password: form.password });
-      // expected { token, user }
       const token = res.data.token;
       const user = res.data.user;
       if (token && user) {

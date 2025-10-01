@@ -1,4 +1,3 @@
-// backend/src/controllers/paymentController.js
 import { prisma } from "../config/db.js";
 import { sendMail } from "../utils/email.js";
 
@@ -9,22 +8,20 @@ export const confirmPayment = async (req, res) => {
     const order = await prisma.order.findUnique({ where: { id: Number(orderId) }, include: { user: true } });
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    // Update order status
     await prisma.order.update({
       where: { id: order.id },
       data: { status: "paid" },
     });
 
-    // ✅ Send payment receipt email
     await sendMail(
       order.user.email,
-      "Net-Soko Payment Receipt",
+      "NetSoko Payment Receipt",
       `
       <h2>Payment Receipt</h2>
       <p>Order <strong>#${order.id}</strong> has been paid successfully.</p>
       <p>Amount: <strong>$${amount}</strong></p>
       <p>Payment Method: <strong>${paymentMethod}</strong></p>
-      <p>Thank you for shopping with Net-Soko!</p>
+      <p>Thank you for shopping with NetSoko!</p>
       `
     );
 

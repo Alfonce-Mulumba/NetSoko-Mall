@@ -1,4 +1,3 @@
-// backend/src/controllers/authController.js
 import { prisma, JWT_SECRET } from "../config/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -13,7 +12,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// helper: send email (wrapped)
 const sendMail = async (to, subject, text) => {
   try {
     await transporter.sendMail({
@@ -23,7 +21,7 @@ const sendMail = async (to, subject, text) => {
       text,
     });
   } catch (err) {
-    // don't throw to user — log server side
+
     console.error("sendMail error:", err?.message || err);
   }
 };
@@ -39,13 +37,13 @@ export const registerUser = async (req, res) => {
 
     if (existing) {
       if (existing.is_verified) {
-        return res.status(400).json({ message: "User already exists" });
+        return res.status(400).json({ message: "User email already exists" });
       } else {
         await prisma.user.update({
           where: { email },
           data: { verification_code: code, verification_expires: expires, password: hashed },
         });
-        await sendMail(email, "Verify your Net-Soko account", `Your verification code is: ${code}`);
+        await sendMail(email, "Verify your NetSoko account", `Your verification code is: ${code}`);
         return res.json({ message: "Verification code resent. Please check your email." });
       }
     }
@@ -63,35 +61,35 @@ export const registerUser = async (req, res) => {
       },
     });
 
-    await sendMail(email, "Verify your Net-Soko account", `Your verification code is: ${code}`);
-    return res.json({ message: "User registered. Check your email for verification code." });
+    await sendMail(email, "Verify your NetSoko account", `Your verification code is: ${code}`);
+    return res.json({ message: "User registered successfully. Check your email for verification code." });
 } catch (err) {
   console.error("registerUser error:", err);
 
   if (err.code === "P2002" && err.meta?.target?.includes("email")) {
-    return res.status(400).json({ message: "Email already in use" });
+    return res.status(400).json({ message: "Email already exists, login to access your account" });
   }
 
-  return res.status(500).json({ message: "Error registering", error: err.message });
+  return res.status(500).json({ message: "Error registering customer, try again later", error: err.message });
 }
 };
 
 export const verifyEmail = async (req, res) => {
   try {
     const { email, code } = req.body;
-    if (!email || !code) return res.status(400).json({ message: "email and code are required" });
+    if (!email || !code) return res.status(400).json({ message: "email and code required" });
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.is_verified) return res.json({ message: "Already verified" });
+    if (user.is_verified) return res.json({ message: "Email already verified" });
 
     if (!user.verification_code || !user.verification_expires) {
-      return res.status(400).json({ message: "No verification code present. Request a new one." });
+      return res.status(400).json({ message: "Verification code not found or has expired. Click resend to request a new one." });
     }
 
     if (new Date() > new Date(user.verification_expires)) {
-      return res.status(400).json({ message: "Verification code expired. Request a new one." });
+      return res.status(400).json({ message: "Verification code has expired. Click resend to request a new one." });
     }
 
     if (String(user.verification_code) !== String(code)) {
@@ -103,10 +101,10 @@ export const verifyEmail = async (req, res) => {
       data: { is_verified: true, verification_code: null, verification_expires: null },
     });
 
-    return res.json({ message: "Email verified. You can now login." });
+    return res.json({ message: "Email verified successfully. Click proceed to login." });
   } catch (err) {
     console.error("verifyEmail error:", err);
-    return res.status(500).json({ message: "Error verifying email", error: err?.message || String(err) });
+    return res.status(500).json({ message: "Error verifying email, please try again", error: err?.message || String(err) });
   }
 };
 export const resendCode = async (req, res) => {
@@ -118,7 +116,7 @@ export const resendCode = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (user.is_verified) {
-      return res.status(400).json({ message: "User already verified. Please login." });
+      return res.status(400).json({ message: "User already verified. Please proceed to login." });
     }
 
     const code = Math.floor(100000 + Math.random() * 900000);
@@ -137,7 +135,7 @@ export const resendCode = async (req, res) => {
     res.json({ message: "New verification code sent to your email." });
   } catch (err) {
     console.error("resendCode error:", err);
-    res.status(500).json({ message: "Error resending code", error: err.message });
+    res.status(500).json({ message: "Error resending code, try again", error: err.message });
   }
 };
 
@@ -149,10 +147,10 @@ export const loginUser = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user.is_verified) return res.status(403).json({ message: "Please verify your email before logging in." });
+    if (!user.is_verified) return res.status(403).json({ message: "Please verify your email to login." });
 
     const matched = await bcrypt.compare(password, user.password);
-    if (!matched) return res.status(401).json({ message: "Invalid credentials" });
+    if (!matched) return res.status(401).json({ message: "Invalid credentials, click forgot to reset your password" });
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: "8h" });
 
@@ -163,7 +161,7 @@ export const loginUser = async (req, res) => {
     });
   } catch (err) {
     console.error("loginUser error:", err);
-    return res.status(500).json({ message: "Error logging in", error: err?.message || String(err) });
+    return res.status(500).json({ message: "Error logging in, try again", error: err?.message || String(err) });
   }
 };
 
@@ -175,10 +173,9 @@ export const forgotPassword = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // generate a token (random string) and expiry (1 hour)
-    const resetToken = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
     const resetTokenHashed = crypto.createHash("sha256").update(resetToken).digest("hex");
-    const resetExpires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+    const resetExpires = new Date(Date.now() + 1000 * 60 * 60);
 
     await prisma.user.update({
       where: { email },
@@ -188,12 +185,12 @@ export const forgotPassword = async (req, res) => {
       },
     });
 
-    // Email the plain token (in prod you'd send a link, e.g. https://yourdomain/reset?token=...&email=...)
+    // Not ready for prod. Email the plain token (in prod you'd send a link, e.g. https://yourdomain/reset?token=...&email=...)
     const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password?token=${resetToken}&email=${encodeURIComponent(
       email
     )}`;
 
-    await sendMail(email, "Reset your Net-Soko password", `Your password reset code is: ${resetToken} (valid 1 hour):\n\n${resetUrl}`);
+    await sendMail(email, "Reset your NetSoko password", `Your password reset code is: ${resetToken} (valid 1 hour):\n\n${resetUrl}`);
 
     return res.json({ message: "Reset instructions sent to email (if it exists)." });
   } catch (err) {
@@ -211,16 +208,16 @@ export const resetPassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (!user.reset_password_token || !user.reset_password_expires) {
-      return res.status(400).json({ message: "No reset requested or token expired" });
+      return res.status(400).json({ message: "No reset requested or code has expired" });
     }
 
     if (new Date() > new Date(user.reset_password_expires)) {
-      return res.status(400).json({ message: "Reset token expired. Request a new one." });
+      return res.status(400).json({ message: "Reset code has expired. Request a new one." });
     }
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
     if (hashedToken !== user.reset_password_token) {
-      return res.status(400).json({ message: "Invalid reset token" });
+      return res.status(400).json({ message: "Invalid reset code" });
     }
 
     const hashed = await bcrypt.hash(newPassword, 12);
@@ -234,15 +231,14 @@ export const resetPassword = async (req, res) => {
       },
     });
 
-    // Send notification email
     const formattedDate = new Date().toLocaleString("en-KE", { timeZone: "Africa/Nairobi" });
     await sendMail(
       email,
-      "Your Net-Soko password was reset",
-      `Dear ${user.name || "Customer"},\n\nYour password was reset on ${formattedDate}.\n\nIf this wasn’t you, please contact support immediately.`
+      "NetSoko password was reset",
+      `Dear ${user.name || "Customer"},\n\nYour password was reset on ${formattedDate}.\n\nIf this wasn’t you, please contact support or set a new password immediately.`
     );
 
-    return res.json({ message: "Password reset successful. You can now login with new password." });
+    return res.json({ message: "Password reset successful. You can now login with your new password." });
   } catch (err) {
     console.error("resetPassword error:", err);
     return res.status(500).json({ message: "Error resetting password", error: err?.message || String(err) });

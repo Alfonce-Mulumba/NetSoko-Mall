@@ -9,7 +9,7 @@ export default function Home() {
   (async () => {
     try {
       const res = await api.getProducts({ limit: 8, sort: "newest" });
-      setFeatured(res.data || []);  // ✅ plain array
+      setFeatured(res.data || []);
     } catch (err) {
       console.error("Home fetch error:", err);
       setFeatured([]);

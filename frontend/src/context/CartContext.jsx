@@ -12,7 +12,6 @@ export const CartProvider = ({ children }) => {
       const res = await api.getCart();
       setItems(res.data);
     } catch (err) {
-      // if not logged in or empty, keep local cart
       const local = JSON.parse(localStorage.getItem("cart") || "[]");
       setItems(local);
     }
