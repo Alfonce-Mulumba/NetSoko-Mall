@@ -9,7 +9,8 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;}
   return config;
 });
 
@@ -40,7 +41,7 @@ export default {
   reportProblem: (data) => api.post("/chatbot/report", data),
 
   adminGetProducts: () => api.get("/admin/products"),
-  adminCreateProductsBulkJSON: (data) => api.post("/admin/products/bulk/json", data),
+  adminCreateProduct: (data) => api.post("/admin/products", data),
   adminUpdateStock: (id, body) => api.put(`/admin/products/${id}/stock`, body),
   adminUpdateDiscount: (id, body) => api.put(`/admin/products/${id}/discount`, body),
   adminDeleteProduct: (id) => api.delete(`/admin/products/${id}`),

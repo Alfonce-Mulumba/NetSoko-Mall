@@ -1,5 +1,10 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx"; // ✅ Added Footer
 
 import Home from "./pages/Home.jsx";
 import ProductList from "./pages/ProductList.jsx";
@@ -21,11 +26,6 @@ import ManageUsers from "./pages/admin/ManageUsers.jsx";
 import ManageOrders from "./pages/admin/ManageOrders.jsx";
 import Analytics from "./pages/admin/Analytics.jsx";
 
-import Navbar from "./components/Navbar.jsx";
-import Footer from "./components/Footer.jsx";
-import Toast from "./components/Toast.jsx";
-import ChatbotWidget from "./components/ChatbotWidget.jsx";
-
 function PrivateRoute({ children, role }) {
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const token = localStorage.getItem("token");
@@ -34,25 +34,50 @@ function PrivateRoute({ children, role }) {
   return children;
 }
 
-export default function App() {
+function App() {
   return (
     <div className="flex flex-col min-h-screen">
+      {/* ✅ Global Navbar */}
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-6">
+
+      {/* ✅ Page content grows to fill space */}
+      <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route
+            path="/orders"
+            element={
+              <PrivateRoute>
+                <Orders />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify" element={<VerifyEmail />} />
           <Route path="/reset-password/:token" element={<ResetPasswordModal />} />
 
-          <Route path="/admin" element={<PrivateRoute role="admin"><AdminLayout /></PrivateRoute>}>
+          {/* Admin routes */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute role="admin">
+                <AdminLayout />
+              </PrivateRoute>
+            }
+          >
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<ManageProducts />} />
             <Route path="users" element={<ManageUsers />} />
@@ -63,9 +88,13 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+
+      {/* ✅ Footer stays at bottom */}
       <Footer />
-      <ChatbotWidget />
-      <Toast />
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }
+
+export default App;

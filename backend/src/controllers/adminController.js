@@ -1,24 +1,30 @@
 import { prisma } from "../config/db.js";
-export const bulkUploadJSON = async (req, res) => {
+export const createProduct = async (req, res) => {
   try {
-    const { products } = req.body;
-    if (!products || !Array.isArray(products)) {
-      return res.status(400).json({ message: "Invalid products data" });
+    const { name, description, price, category, images, stock } = req.body;
+
+    if (!name || !price) {
+      return res.status(400).json({ error: "Name and price are required" });
     }
 
-    const created = await prisma.product.createMany({
-      data: products.map((p) => ({
-        name: p.name,
-        description: p.description || "",
-        price: p.price,
-        stock: p.stock || 0,
-        category: p.category || null,
-      })),
+    const product = await prisma.product.create({
+      data: {
+        name,
+        description: description || "",
+        price: parseFloat(price),
+        category: category || null,
+        stock: stock ? parseInt(stock) : 0,   // ✅ safe default
+        images: images && images.length > 0 
+          ? { create: images.map((url) => ({ url })) }
+          : undefined,                        // ✅ no crash if no images
+      },
+      include: { images: true },
     });
 
-    res.json({ message: "Products uploaded", count: created.count });
+    res.status(201).json(product);
   } catch (err) {
-    res.status(500).json({ message: "Error bulk uploading", error: err.message });
+    console.error("❌ Create product failed:", err);
+    res.status(500).json({ error: "Create product failed", details: err.message });
   }
 };
 
@@ -62,8 +68,10 @@ export const updateStock = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await prisma.product.findMany();
-    res.json(products);
+    const products = await prisma.product.findMany({
+    include: { images: true },
+    });
+    res.json({products});
   } catch (error) {
     res.status(500).json({ message: "Error fetching products", error: error.message });
   }

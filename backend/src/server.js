@@ -1,17 +1,18 @@
-import express from "express";
 import dotenv from "dotenv";
+
+dotenv.config();
+
+import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
+
 import uploadRoutes from "./routes/uploadRoutes.js";
 import { fileURLToPath } from "url";
-
-
 import { prisma } from "./config/db.js"; // Prisma client
 import logger from "./utils/logger.js";
 import { authLimiter, generalLimiter } from "./middleware/rateLimiter.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
-
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
@@ -22,14 +23,12 @@ import orderRoutes from "./routes/orderRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
 
-dotenv.config();
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use(helmet());
 
 // CORS: allow frontend only by default (adjust FRONTEND_URL in .env)

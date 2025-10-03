@@ -8,70 +8,68 @@ datasource db {
 }
 
 model User {
-  id                     Int       @id @default(autoincrement())
-  name                   String
-  email                  String    @unique
+  id                     Int               @id @default(autoincrement())
+  email                  String            @unique
   phone                  String?
   password               String
-  role                   String    @default("customer")
-  is_verified            Boolean   @default(false)
+  role                   String            @default("customer")
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  is_verified            Boolean           @default(false)
+  name                   String
   verification_code      Int?
   verification_expires   DateTime?
-  reset_password_token   String?
   reset_password_expires DateTime?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-
-  orders Order[]
-  cart   Cart[]
-  complaint Complaint[]
-  deliveryAddress DeliveryAddress[]
+  reset_password_token   String?
+  cart                   Cart[]
+  complaint              Complaint[]
+  deliveryAddress        DeliveryAddress[]
+  orders                 Order[]
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
   description String
   price       Float
-  discount    Float?   @default(0)
-  stock       Int
+  stock       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   category    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  images     ProductImage[]
-  sizes      ProductSize[]
-  orderItems OrderItem[]
-  cart       Cart[]
+  hot         Boolean        @default(false)
+  discount    Int?           @default(0)
+  cart        Cart[]
+  orderItems  OrderItem[]
+  images      ProductImage[]
+  sizes       ProductSize[]
 }
 
 model ProductImage {
   id        Int     @id @default(autoincrement())
   url       String
-  product   Product @relation(fields: [productId], references: [id])
   productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductSize {
   id        Int     @id @default(autoincrement())
   size      String
   stock     Int
-  product   Product @relation(fields: [productId], references: [id])
   productId Int
+  product   Product @relation(fields: [productId], references: [id])
 }
 
 model Cart {
   id        Int     @id @default(autoincrement())
-  user      User    @relation(fields: [userId], references: [id])
   userId    Int
-  product   Product @relation(fields: [productId], references: [id])
   productId Int
   quantity  Int
+  product   Product @relation(fields: [productId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
 }
 
 model DeliveryAddress {
   id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
   userId    Int
   address   String
   city      String
@@ -79,38 +77,38 @@ model DeliveryAddress {
   phone     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  user      User     @relation(fields: [userId], references: [id])
   orders    Order[]
 }
 
 model Order {
-  id              Int              @id @default(autoincrement())
-  user            User             @relation(fields: [userId], references: [id])
-  userId          Int
-  status          String           @default("pending")
-  deliveryAddress DeliveryAddress? @relation(fields: [deliveryAddressId], references: [id])
+  id                Int              @id @default(autoincrement())
+  userId            Int
+  status            String           @default("pending")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
   deliveryAddressId Int?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  orderItems      OrderItem[]
+  deliveryAddress   DeliveryAddress? @relation(fields: [deliveryAddressId], references: [id])
+  user              User             @relation(fields: [userId], references: [id])
+  orderItems        OrderItem[]
 }
 
 model OrderItem {
   id        Int     @id @default(autoincrement())
-  order     Order   @relation(fields: [orderId], references: [id])
   orderId   Int
-  product   Product @relation(fields: [productId], references: [id])
   productId Int
   quantity  Int
   price     Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 }
+
 model Complaint {
   id        Int      @id @default(autoincrement())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
   message   String
-  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
   status    String   @default("open")
+  isRead    Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
 }
