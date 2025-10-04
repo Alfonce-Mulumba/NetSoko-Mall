@@ -7,7 +7,7 @@ import EditProductModal from "../../pages/admin/EditProductModal.jsx";
 export default function ManageProducts() {
   const { user } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
-  const [editingProduct, setEditingProduct] = useState(null); // ✅ new state
+  const [editingProduct, setEditingProduct] = useState(null);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -110,35 +110,37 @@ export default function ManageProducts() {
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Manage Products</h2>
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen p-4">
+      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+        Manage Products
+      </h2>
 
       {/* Add product form */}
-      <div className="bg-white p-4 rounded shadow mb-6">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow mb-6">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Name"
-          className="border p-2 w-full mb-2"
+          className="border p-2 w-full mb-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description"
-          className="border p-2 w-full mb-2"
+          className="border p-2 w-full mb-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
         <input
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="Price"
           type="number"
-          className="border p-2 w-full mb-2"
+          className="border p-2 w-full mb-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
         <input
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           placeholder="Category"
-          className="border p-2 w-full mb-2"
+          className="border p-2 w-full mb-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
         <input type="file" multiple onChange={handleUpload} className="mb-2" />
         <div className="flex gap-2 mb-2 flex-wrap">
@@ -154,7 +156,7 @@ export default function ManageProducts() {
         <button
           onClick={handleAdd}
           disabled={loading}
-          className="bg-indigo-600 text-white px-4 py-2 rounded"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
         >
           {loading ? "Adding..." : "Add Product"}
         </button>
@@ -163,14 +165,14 @@ export default function ManageProducts() {
       {/* List existing products */}
       <div className="grid gap-3">
         {products.length === 0 ? (
-          <div className="text-gray-500 italic">
+          <div className="text-gray-500 dark:text-gray-400 italic">
             No products. Add one above 👆
           </div>
         ) : (
           products.map((p) => (
             <div
               key={p.id}
-              className="bg-white p-3 rounded flex items-center gap-3 shadow"
+              className="bg-white dark:bg-gray-800 p-3 rounded flex items-center gap-3 shadow"
             >
               <img
                 src={p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
@@ -178,18 +180,22 @@ export default function ManageProducts() {
                 className="w-20 h-20 object-cover rounded"
               />
               <div>
-                <div className="font-semibold">{p.name}</div>
-                <div className="text-sm">Ksh {p.price}</div>
+                <div className="font-semibold text-gray-900 dark:text-gray-100">
+                  {p.name}
+                </div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">
+                  Ksh {p.price}
+                </div>
               </div>
               <div className="ml-auto flex gap-4">
                 <button
-                  className="text-blue-600"
+                  className="text-blue-600 dark:text-blue-400"
                   onClick={() => setEditingProduct(p)}
                 >
                   Edit
                 </button>
                 <button
-                  className="text-red-600"
+                  className="text-red-600 dark:text-red-400"
                   onClick={() => handleDelete(p.id)}
                 >
                   Delete

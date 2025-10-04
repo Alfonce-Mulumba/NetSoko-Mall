@@ -114,7 +114,7 @@ export default function ChatbotWidget() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 p-3 overflow-y-auto bg-[#ece5dd]">
+          <div className="flex-1 p-3 overflow-y-auto bg-gray-50 dark:bg-gray-800">
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -125,8 +125,8 @@ export default function ChatbotWidget() {
                 <div
                   className={`px-3 py-2 rounded-lg max-w-[75%] text-sm whitespace-pre-line shadow ${
                     m.from === "bot"
-                      ? "bg-[#dcf8c6] text-gray-900" // WhatsApp green
-                      : "bg-white text-gray-900" // WhatsApp white
+                      ? "bg-green-200 dark:bg-green-700 text-gray-900 dark:text-gray-100"
+                      : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   }`}
                 >
                   {m.text}
@@ -136,7 +136,7 @@ export default function ChatbotWidget() {
 
             {loading && (
               <div className="mb-2 flex justify-start">
-                <div className="bg-[#dcf8c6] px-3 py-2 rounded-lg flex gap-1 shadow">
+                <div className="bg-green-200 dark:bg-green-700 px-3 py-2 rounded-lg flex gap-1 shadow">
                   <span className="w-2 h-2 bg-primary rounded-full animate-bounce"></span>
                   <span className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></span>
                   <span className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></span>
@@ -147,12 +147,12 @@ export default function ChatbotWidget() {
           </div>
 
           {/* Input */}
-          <div className="p-2 border-t border-gray-200 dark:border-gray-700 flex bg-white">
+          <div className="p-2 border-t border-gray-200 dark:border-gray-700 flex bg-white dark:bg-gray-900">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              className="flex-grow px-2 border border-gray-300 rounded-full bg-white text-gray-800 placeholder-gray-500"
+              className="flex-grow px-2 border border-gray-300 dark:border-gray-600 rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="Type here..."
             />
             <button

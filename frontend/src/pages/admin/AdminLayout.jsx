@@ -13,7 +13,7 @@ export default function AdminLayout() {
   }, [user, nav]);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white p-4">
         <h2 className="text-xl font-bold mb-6">Admin</h2>
@@ -27,7 +27,7 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 bg-gray-50">
+      <main className="flex-1 p-6 bg-gray-100 dark:bg-gray-900">
         <Outlet />
       </main>
     </div>
