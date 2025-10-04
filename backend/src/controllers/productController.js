@@ -1,13 +1,54 @@
+// controllers/productController.js
 import { prisma } from "../config/db.js";
 
+// ✅ fetch all products (already exists, keep it)
 export const getProducts = async (req, res) => {
   try {
+    const { q, category, sort, minPrice, maxPrice, limit } = req.query;
+
+    let where = {};
+    if (q) where.name = { contains: q, mode: "insensitive" };
+    if (category) where.category = category;
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    let orderBy = { createdAt: "desc" };
+    if (sort === "price_asc") orderBy = { price: "asc" };
+    if (sort === "price_desc") orderBy = { price: "desc" };
+
     const products = await prisma.product.findMany({
-      include: { images: true, sizes: true },
+      where,
+      include: { images: true },
+      orderBy,
+      take: limit ? parseInt(limit) : undefined,
     });
-    res.json(products);
+
+    res.json({ products });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching products", error: err.message });
+    console.error("❌ Error fetching products:", err);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+};
+
+// ✅ NEW: fetch only HOT products
+export const getHotProducts = async (req, res) => {
+  try {
+    const { limit } = req.query;
+
+    const products = await prisma.product.findMany({
+      where: { hot: true },
+      include: { images: true },
+      orderBy: { createdAt: "desc" },
+      take: limit ? parseInt(limit) : 8,
+    });
+
+    res.json({ products });
+  } catch (err) {
+    console.error("❌ Error fetching hot products:", err);
+    res.status(500).json({ error: "Failed to fetch hot products" });
   }
 };
 

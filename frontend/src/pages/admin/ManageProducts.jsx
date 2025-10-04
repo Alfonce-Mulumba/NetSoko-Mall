@@ -1,13 +1,14 @@
-// frontend/src/pages/admin/ManageProducts.jsx
 import React, { useEffect, useState, useContext } from "react";
 import api from "../../api/index.js";
 import { toast } from "react-toastify";
-import { AuthContext } from "../../context/AuthContext"; // ✅ import context
+import { AuthContext } from "../../context/AuthContext";
+import EditProductModal from "../../pages/admin/EditProductModal.jsx";
 
 export default function ManageProducts() {
-    const { user } = useContext(AuthContext); // ✅ get logged in user from context
-
+  const { user } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
+  const [editingProduct, setEditingProduct] = useState(null); // ✅ new state
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -18,8 +19,7 @@ export default function ManageProducts() {
   // Fetch products
   const fetchProducts = async () => {
     try {
-            if (!user || user.role !== "admin") {
-        // ✅ prevent fetching if not admin
+      if (!user || user.role !== "admin") {
         toast.error("❌ You must be an admin to view products");
         return;
       }
@@ -49,7 +49,6 @@ export default function ManageProducts() {
       const data = await res.json();
 
       if (!data.urls) throw new Error(data.error || "Upload failed");
-
       setImageUrls((prev) => [...prev, ...data.urls]);
       toast.success("✅ Image uploaded successfully!");
     } catch (err) {
@@ -60,7 +59,7 @@ export default function ManageProducts() {
 
   // Add product
   const handleAdd = async () => {
-        if (!user || user.role !== "admin") {
+    if (!user || user.role !== "admin") {
       toast.error("❌ Only admins can add products");
       return;
     }
@@ -78,16 +77,12 @@ export default function ManageProducts() {
         category,
         images: imageUrls,
       });
-
       toast.success("✅ Product added successfully!");
-
-      // reset form
       setName("");
       setDescription("");
       setPrice("");
       setCategory("");
       setImageUrls([]);
-
       fetchProducts();
     } catch (err) {
       console.error("Add product failed:", err);
@@ -99,7 +94,7 @@ export default function ManageProducts() {
 
   // Delete product
   const handleDelete = async (id) => {
-        if (!user || user.role !== "admin") {
+    if (!user || user.role !== "admin") {
       toast.error("❌ Only admins can delete products");
       return;
     }
@@ -165,39 +160,54 @@ export default function ManageProducts() {
         </button>
       </div>
 
-{/* List existing products */}
-<div className="grid gap-3">
-  {products.length === 0 ? (
-    <div className="text-gray-500 italic">
-      No products. Add one above 👆
-    </div>
-  ) : (
-    products.map((p) => (
-      <div
-        key={p.id}
-        className="bg-white p-3 rounded flex items-center gap-3 shadow"
-      >
-        <img
-          src={p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
-          alt={p.name}
-          className="w-20 h-20 object-cover rounded"
-        />
-        <div>
-          <div className="font-semibold">{p.name}</div>
-          <div className="text-sm">Ksh {p.price}</div>
-        </div>
-        <div className="ml-auto">
-          <button
-            className="text-red-600"
-            onClick={() => handleDelete(p.id)}
-          >
-            Delete
-          </button>
-        </div>
+      {/* List existing products */}
+      <div className="grid gap-3">
+        {products.length === 0 ? (
+          <div className="text-gray-500 italic">
+            No products. Add one above 👆
+          </div>
+        ) : (
+          products.map((p) => (
+            <div
+              key={p.id}
+              className="bg-white p-3 rounded flex items-center gap-3 shadow"
+            >
+              <img
+                src={p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
+                alt={p.name}
+                className="w-20 h-20 object-cover rounded"
+              />
+              <div>
+                <div className="font-semibold">{p.name}</div>
+                <div className="text-sm">Ksh {p.price}</div>
+              </div>
+              <div className="ml-auto flex gap-4">
+                <button
+                  className="text-blue-600"
+                  onClick={() => setEditingProduct(p)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="text-red-600"
+                  onClick={() => handleDelete(p.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
-    ))
-  )}
-</div>
+
+      {/* ✅ Modal for editing */}
+      {editingProduct && (
+        <EditProductModal
+          product={editingProduct}
+          onClose={() => setEditingProduct(null)}
+          onUpdated={fetchProducts}
+        />
+      )}
     </div>
   );
-} 
+}

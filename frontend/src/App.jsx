@@ -18,7 +18,7 @@ import RegisterPage from "./pages/Register.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPasswordModal from "./components/ResetPasswordModal";
-
+import ChatbotWidget from "./components/ChatbotWidget.jsx";
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import ManageProducts from "./pages/admin/ManageProducts.jsx";
@@ -46,6 +46,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/chatbotwidget" element={<ChatbotWidget />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route
@@ -88,10 +89,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-
-      {/* ✅ Footer stays at bottom */}
       <Footer />
-
+      <ChatbotWidget/>
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );

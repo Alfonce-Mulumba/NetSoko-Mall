@@ -23,6 +23,7 @@ export default {
   resend: (data) => api.post("/auth/resend-code", data),
 
   getProducts: (params) => api.get("/products", { params }),
+  getHotProducts: (limit = 8) => api.get(`/products/hot?limit=${limit}`),
   getProductById: (id) => api.get(`/products/${id}`),
   searchProducts: (params) => api.get("/products/search", { params }),
 
@@ -37,7 +38,7 @@ export default {
   addAddress: (data) => api.post("/addresses", data),
   getAddresses: () => api.get("/addresses"),
 
-  checkOrderStatus: (data) => api.post("/chatbot/order-status", data),
+  checkOrderStatus: (orderId) => api.get(`/orders/${orderId}`),
   reportProblem: (data) => api.post("/chatbot/report", data),
 
   adminGetProducts: () => api.get("/admin/products"),
@@ -45,6 +46,7 @@ export default {
   adminUpdateStock: (id, body) => api.put(`/admin/products/${id}/stock`, body),
   adminUpdateDiscount: (id, body) => api.put(`/admin/products/${id}/discount`, body),
   adminDeleteProduct: (id) => api.delete(`/admin/products/${id}`),
+  adminUpdateProduct: (id, data) => api.put(`/admin/products/${id}`, data),
   adminGetUsers: () => api.get("/admin/users"),
   adminDeleteUser: (id) => api.delete(`/admin/users/${id}`),
   adminGetOrders: () => api.get("/admin/orders"),

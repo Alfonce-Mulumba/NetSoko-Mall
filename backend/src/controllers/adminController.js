@@ -66,16 +66,47 @@ export const updateStock = async (req, res) => {
   }
 };
 
+// ✅ Fetch ALL products (for shop)
 export const getProducts = async (req, res) => {
   try {
+    const { limit, sort } = req.query;
+
+    let orderBy = { createdAt: "desc" };
+    if (sort === "price_asc") orderBy = { price: "asc" };
+    if (sort === "price_desc") orderBy = { price: "desc" };
+
     const products = await prisma.product.findMany({
-    include: { images: true },
+      include: { images: true },
+      orderBy,
+      take: limit ? parseInt(limit) : undefined,
     });
-    res.json({products});
+
+    res.json({ products });
   } catch (error) {
+    console.error("❌ Error fetching products:", error);
     res.status(500).json({ message: "Error fetching products", error: error.message });
   }
 };
+
+// ✅ Fetch only HOT products (for homepage featured)
+export const getHotProducts = async (req, res) => {
+  try {
+    const { limit } = req.query;
+
+    const products = await prisma.product.findMany({
+      where: { hot: true },
+      include: { images: true },
+      orderBy: { createdAt: "desc" },
+      take: limit ? parseInt(limit) : 8,
+    });
+
+    res.json({ products });
+  } catch (error) {
+    console.error("❌ Error fetching hot products:", error);
+    res.status(500).json({ message: "Error fetching hot products", error: error.message });
+  }
+};
+
 
 export const deleteProduct = async (req, res) => {
   try {
@@ -88,6 +119,43 @@ export const deleteProduct = async (req, res) => {
     res.json({ message: "Product deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting product", error: error.message });
+  }
+};
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, category, discount, hot, stock, images } = req.body;
+
+    const data = {
+      name,
+      description,
+      category,
+      price: price !== undefined ? parseFloat(price) : undefined,
+      discount: discount !== undefined ? parseInt(discount) : undefined,
+      hot: hot !== undefined ? Boolean(hot) : undefined,
+      stock: stock !== undefined ? parseInt(stock) : undefined,
+    };
+
+    // ✅ Handle images carefully
+    if (Array.isArray(images)) {
+      data.images = {
+        deleteMany: {}, // clear old ones
+        create: images.map((img) =>
+          typeof img === "string" ? { url: img } : { url: img.url }
+        ),
+      };
+    }
+
+    const product = await prisma.product.update({
+      where: { id: Number(id) },
+      data,
+      include: { images: true },
+    });
+
+    res.json({ message: "✅ Product updated successfully", product });
+  } catch (err) {
+    console.error("❌ Update product failed:", err);
+    res.status(500).json({ error: "Update product failed", details: err.message });
   }
 };
 

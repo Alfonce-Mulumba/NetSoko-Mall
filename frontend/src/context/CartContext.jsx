@@ -10,8 +10,21 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     try {
       const res = await api.getCart();
-      setItems(res.data);
+      // Ensure product has images populated
+      const normalized = res.data.map((i) => ({
+        ...i,
+        product: {
+          ...i.product,
+          image:
+            i.product?.image ||
+            i.product?.images?.[0]?.url ||
+            i.product?.images?.[0] ||
+            null,
+        },
+      }));
+      setItems(normalized);
     } catch (err) {
+      console.error("Cart fetch failed, falling back to localStorage", err);
       const local = JSON.parse(localStorage.getItem("cart") || "[]");
       setItems(local);
     }
@@ -25,18 +38,23 @@ export const CartProvider = ({ children }) => {
     setSyncing(true);
     try {
       const res = await api.addToCart({ productId, quantity });
-      await fetchCart();
+      await fetchCart(); // Refresh cart after add
       setSyncing(false);
       return res.data;
     } catch (err) {
+      console.error("Add to cart failed:", err);
       setSyncing(false);
       throw err;
     }
   };
 
   const remove = async (id) => {
-    await api.removeFromCart(id);
-    await fetchCart();
+    try {
+      await api.removeFromCart(id);
+      await fetchCart();
+    } catch (err) {
+      console.error("Remove from cart failed:", err);
+    }
   };
 
   const value = {
