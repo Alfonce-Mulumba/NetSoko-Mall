@@ -224,21 +224,143 @@ export const updateOrder = async (req, res) => {
 
 export const getAnalytics = async (req, res) => {
   try {
+    const timeframe = req.query.timeframe || "week"; // day | week | month | year
+    const now = new Date();
+    let start;
+
+    if (timeframe === "day") {
+      start = new Date(now);
+      start.setDate(now.getDate() - 1);
+    } else if (timeframe === "week") {
+      start = new Date(now);
+      start.setDate(now.getDate() - 7);
+    } else if (timeframe === "month") {
+      start = new Date(now);
+      start.setMonth(now.getMonth() - 1);
+    } else {
+      start = new Date(now);
+      start.setFullYear(now.getFullYear() - 1);
+    }
+
+    // ✅ Fetch data
+    const [orders, users, products] = await Promise.all([
+      prisma.order.findMany({
+        where: { createdAt: { gte: start } },
+        include: { orderItems: { include: { product: true } } },
+      }),
+      prisma.user.findMany({
+        where: { createdAt: { gte: start } },
+        select: { id: true, createdAt: true },
+      }),
+      prisma.product.findMany({
+        select: { id: true, name: true, stock: true, price: true },
+      }),
+    ]);
+
+    // ✅ Totals
     const totalUsers = await prisma.user.count();
     const totalProducts = await prisma.product.count();
     const totalOrders = await prisma.order.count();
     const pendingOrders = await prisma.order.count({ where: { status: "pending" } });
 
+    // ✅ Compute total sales
+    let totalSales = 0;
+    orders.forEach(order => {
+      order.orderItems.forEach(item => {
+        const price = item.price ?? item.product?.price ?? 0;
+        totalSales += price * (item.quantity ?? 1);
+      });
+    });
+
+    // ✅ Sales over time
+    const startDate = new Date(start);
+    const endDate = new Date();
+    const daysBetween = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    const salesOverTime = [];
+
+    for (let i = 0; i <= daysBetween; i++) {
+      const current = new Date(startDate);
+      current.setDate(startDate.getDate() + i);
+      const label = current.toISOString().slice(5, 10);
+
+      const sales = orders.reduce((sum, order) => {
+        const orderDate = new Date(order.createdAt);
+        if (
+          orderDate.getFullYear() === current.getFullYear() &&
+          orderDate.getMonth() === current.getMonth() &&
+          orderDate.getDate() === current.getDate()
+        ) {
+          order.orderItems.forEach(
+            item => (sum += (item.price ?? item.product?.price ?? 0) * (item.quantity ?? 1))
+          );
+        }
+        return sum;
+      }, 0);
+
+      const orderCount = orders.filter(o => {
+        const d = new Date(o.createdAt);
+        return (
+          d.getFullYear() === current.getFullYear() &&
+          d.getMonth() === current.getMonth() &&
+          d.getDate() === current.getDate()
+        );
+      }).length;
+
+      const userCount = users.filter(u => {
+        const d = new Date(u.createdAt);
+        return (
+          d.getFullYear() === current.getFullYear() &&
+          d.getMonth() === current.getMonth() &&
+          d.getDate() === current.getDate()
+        );
+      }).length;
+
+      salesOverTime.push({ label, sales, orders: orderCount, users: userCount });
+    }
+
+    // ✅ Sales by product
+    const salesByProduct = {};
+    orders.forEach(order => {
+      order.orderItems.forEach(item => {
+        const name = item.product?.name || "Unknown";
+        const value = (item.price ?? item.product?.price ?? 0) * (item.quantity ?? 1);
+        salesByProduct[name] = (salesByProduct[name] || 0) + value;
+      });
+    });
+
+    const topProducts = Object.entries(salesByProduct)
+      .map(([name, sales]) => ({ name, sales }))
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 10);
+
+    // ✅ Product stock (top 10)
+    const stockLevels = products
+      .sort((a, b) => b.stock - a.stock)
+      .slice(0, 10)
+      .map(p => ({ name: p.name, stock: p.stock }));
+
+    // ✅ Response
     res.json({
-      totalUsers,
-      totalProducts,
-      totalOrders,
-      pendingOrders,
+      totals: {
+        totalUsers,
+        totalProducts,
+        totalOrders,
+        pendingOrders,
+        totalSales,
+      },
+      salesOverTime,
+      topProducts,
+      stockLevels,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching analytics", error: error.message });
+    console.error("❌ Error fetching analytics:", error);
+    res.status(500).json({
+      message: "Error fetching analytics",
+      error: error.message,
+    });
   }
 };
+
 
 export const getComplaints = async (req, res) => {
   try {

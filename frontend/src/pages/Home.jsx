@@ -1,147 +1,144 @@
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api/index.js";
 
 export default function Home() {
-  const products = [];
-
-  const lines = [
-    "🚀 Hot Deals🔥",
-    "💎 Premium Brands",
-    "🛒 Fast Checkout",
-  ];
-
-  const [displayed, setDisplayed] = useState(["", "", ""]);
-  const [phase, setPhase] = useState("typing"); // typing | pausing | deleting
-  const [lineIndex, setLineIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const scrollRef = useRef(null);
+  const nav = useNavigate();
 
   useEffect(() => {
-    let timer;
-
-    if (phase === "typing") {
-      if (charIndex < lines[lineIndex].length) {
-        timer = setTimeout(() => {
-          setDisplayed((prev) =>
-            prev.map((l, i) => (i === lineIndex ? lines[i].slice(0, charIndex + 1) : l))
-          );
-          setCharIndex((c) => c + 1);
-        }, 80);
-      } else {
-        if (lineIndex < lines.length - 1) {
-          // move to next line
-          setTimeout(() => {
-            setLineIndex((i) => i + 1);
-            setCharIndex(0);
-          }, 400);
-        } else {
-          // all lines done -> pause
-          setTimeout(() => setPhase("pausing"), 500);
-        }
+    const fetchProducts = async () => {
+      try {
+        const res = await api.adminGetProducts({ limit: 10 });
+        console.log("Fetched products:", res.data);
+        setProducts(res.data.products ||res.data || []);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+    fetchProducts();
+  }, []);
 
-    if (phase === "pausing") {
-      timer = setTimeout(() => {
-        setPhase("deleting");
-        setLineIndex(lines.length - 1);
-        setCharIndex(lines[lines.length - 1].length);
-      }, 5000); // pause 5s
-    }
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
 
-    if (phase === "deleting") {
-      if (charIndex > 0) {
-        timer = setTimeout(() => {
-          setDisplayed((prev) =>
-            prev.map((l, i) => (i === lineIndex ? lines[i].slice(0, charIndex - 1) : l))
-          );
-          setCharIndex((c) => c - 1);
-        }, 60);
-      } else {
-        if (lineIndex > 0) {
-          // move to previous line
-          setTimeout(() => {
-            setLineIndex((i) => i - 1);
-            setCharIndex(lines[lineIndex - 1].length);
-          }, 200);
-        } else {
-          // all lines deleted -> restart
-          setPhase("typing");
-          setLineIndex(0);
-          setCharIndex(0);
-        }
+    const scroll = () => {
+      if (container.scrollWidth <= container.clientWidth) return;
+      container.scrollBy({ left: 250, behavior: "smooth" });
+
+      // If reached end, scroll back to start
+      if (
+        container.scrollLeft + container.clientWidth >=
+        container.scrollWidth - 10
+      ) {
+        setTimeout(() => {
+          container.scrollTo({ left: 0, behavior: "smooth" });
+        }, 1000);
       }
-    }
+    };
 
-    return () => clearTimeout(timer);
-  }, [phase, lineIndex, charIndex, displayed, lines]);
+    const interval = setInterval(scroll, 2500);
+    return () => clearInterval(interval);
+  }, [products]);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        src="/videos/background.mp4"
-      />
+    <div className="bg-gray-50 dark:bg-gray-900 transition">
+      <section className="bg-black text-white py-16 px-6 md:px-16 flex flex-col gap-8 md:flex-row items-center justify-between overflow-hidden">
+        <div className="flex-1">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4">NetSoko Home</h1>
+          <p className="mb-6 text-gray-300">
+            Get Flat <span className="text-yellow-400 font-bold">15% OFF</span> on Order
+          </p>
+          <button
+            onClick={() => nav("/products")}
+            className="bg-yellow-400 text-black px-5 py-2 font-semibold rounded hover:bg-yellow-300 transition"
+          >
+            Shop Now
+          </button>
+        </div>
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60" />
-
-      {/* Main Title */}
-      <motion.h1
-        initial={{ y: -200, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="absolute top-1/4 left-1/2 transform -translate-x-1/2 
-                   text-4xl md:text-6xl text-white font-bold text-center drop-shadow-lg"
-      >
-        Welcome to <span className="text-indigo-400">NetSoko Mall</span>
-      </motion.h1>
-
-      {/* Typewriter Bullets */}
-      <ul className="absolute top-1/3 left-12 text-lg md:text-2xl text-gray-200 max-w-xl space-y-2">
-        {displayed.map((text, i) => (
-          <li key={i} className="list-disc list-inside">
-            {text}
-            {i === lineIndex && phase !== "pausing" && <span className="animate-pulse">|</span>}
-          </li>
-        ))}
-      </ul>
-
-      {/* Flying Products */}
-      {products.map((p, index) => (
-        <motion.img
-          key={index}
-          src={p.src}
-          className={`absolute ${p.className}`}
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{
-            opacity: [0, 1, 1, 0],
-            scale: [0.5, 1.1, 1, 0.8],
-            y: [0, -30, 30, 0],
-            rotate: [0, 10, -10, 0],
-          }}
-          transition={{
-            duration: 6,
-            delay: index * 0.8,
-            repeat: Infinity,
-            repeatType: "loop",
-          }}
-        />
-      ))}
-
-      {/* CTA Button */}
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-        <a
-          href="/products"
-          className="bg-indigo-600 text-white px-8 py-4 rounded-lg text-xl font-semibold shadow-lg hover:bg-indigo-700 transition"
+        <div
+          ref={scrollRef}
+          className="flex flex-nowrap gap-6 overflow-x-auto scrollbar-hide flex-1 py-4 md:py-0"
         >
-          Shop Now
-        </a>
-      </div>
+          {loading ? (
+            <p className="text-gray-400">Loading products...</p>
+          ) : products.length === 0 ? (
+            <p className="text-gray-400">No products available</p>
+          ) : (
+            products.map((p) => (
+              <div
+                key={p.id}
+                className="min-w-[100px] bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition flex-shrink-0"
+              >
+                <img
+                  src={p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
+                  alt={p.name}
+                  className="w-full h-20 object-cover rounded-t-lg"
+                />
+                <div className="p-3">
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+                    {p.name}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    Ksh {p.price}
+                  </p>
+                  <Link
+                    to={`/products/${p.id}`}
+                    className="text-yellow-600 text-xs mt-2 inline-block hover:underline"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="px-6 md:px-16 py-10">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          Featured Products
+        </h2>
+
+        {loading ? (
+          <p className="text-gray-600 dark:text-gray-400">Loading products...</p>
+        ) : (
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+            {products.map((p) => (
+              <div
+                key={p.id}
+                className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition flex-shrink-0"
+              >
+                <img
+                  src={p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
+                  alt={p.name}
+                  className="w-full h-40 object-cover rounded-t-lg"
+                />
+                <div className="p-3">
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+                    {p.name}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    Ksh {p.price}
+                  </p>
+                  <Link
+                    to={`/products/${p.id}`}
+                    className="text-yellow-500 text-xs mt-2 inline-block hover:underline"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

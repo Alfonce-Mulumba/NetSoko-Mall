@@ -4,7 +4,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./components/Navbar.jsx";
-import Footer from "./components/Footer.jsx"; // ✅ Added Footer
+import Footer from "./components/Footer.jsx";
+import ChatbotWidget from "./components/ChatbotWidget.jsx";
 
 import Home from "./pages/Home.jsx";
 import ProductList from "./pages/ProductList.jsx";
@@ -15,16 +16,22 @@ import Orders from "./pages/Orders.jsx";
 import Profile from "./pages/Profile.jsx";
 import LoginPage from "./pages/Login.jsx";
 import RegisterPage from "./pages/Register.jsx";
-import NotFound from "./pages/NotFound.jsx";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPasswordModal from "./components/ResetPasswordModal";
-import ChatbotWidget from "./components/ChatbotWidget.jsx";
+
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import ManageProducts from "./pages/admin/ManageProducts.jsx";
 import ManageUsers from "./pages/admin/ManageUsers.jsx";
 import ManageOrders from "./pages/admin/ManageOrders.jsx";
 import Analytics from "./pages/admin/Analytics.jsx";
+
+import Categories from "./pages/Categories.jsx";
+import Specials from "./pages/Specials.jsx";
+import About from "./pages/About.jsx";
+import Contact from "./pages/Contact.jsx";
+import Blog from "./pages/Blog.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 function PrivateRoute({ children, role }) {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -40,15 +47,30 @@ function App() {
       {/* ✅ Global Navbar */}
       <Navbar />
 
-      {/* ✅ Page content grows to fill space */}
-      <main className="flex-1">
+      {/* ✅ Add top padding so content never hides under navbar */}
+      <main className="flex-1 pt-[80px] md:pt-[90px] transition-all duration-300">
         <Routes>
+          {/* Public pages */}
           <Route path="/" element={<Home />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/specials" element={<Specials />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
+
+          {/* Shop */}
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetails />} />
-          <Route path="/chatbotwidget" element={<ChatbotWidget />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+
+          {/* Auth */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify" element={<VerifyEmail />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordModal />} />
+
+          {/* Private */}
           <Route
             path="/orders"
             element={
@@ -65,12 +87,8 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/verify" element={<VerifyEmail />} />
-          <Route path="/reset-password/:token" element={<ResetPasswordModal />} />
 
-          {/* Admin routes */}
+          {/* Admin */}
           <Route
             path="/admin"
             element={
@@ -86,11 +104,14 @@ function App() {
             <Route path="analytics" element={<Analytics />} />
           </Route>
 
+          {/* Not found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+
+      {/* ✅ Global Footer & Chatbot */}
       <Footer />
-      <ChatbotWidget/>
+      <ChatbotWidget />
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );

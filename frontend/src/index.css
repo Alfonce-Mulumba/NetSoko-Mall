@@ -49,14 +49,29 @@ nav a:hover {
   color: var(--primary);
 }
 
-/* ========== SCROLLBAR POLISH ========== */
+/* 🌙 Custom Scrollbar Style */
 ::-webkit-scrollbar {
-  width: 6px;
+  height: 6px; /* horizontal scrollbar height */
+  width: 6px;  /* vertical scrollbar width */
 }
+
 ::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 10px;
+  background: #a3a3a3; /* gray tone */
+  border-radius: 9999px; /* fully rounded edges */
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* darker when hovered */
+}
+
 ::-webkit-scrollbar-track {
-  background: #e2e8f0;
+  background: transparent; /* clean background */
+}
+
+/* 🌓 Dark mode support */
+.dark ::-webkit-scrollbar-thumb {
+  background: #444;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }

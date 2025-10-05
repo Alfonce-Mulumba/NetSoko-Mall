@@ -1,151 +1,225 @@
 // frontend/src/pages/Cart.jsx
-import React, { useContext } from "react";
+import React, { useContext, useState, useMemo } from "react";
 import { CartContext } from "../context/CartContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 
-/*
-  NOTE:
-  - This file adds a robust image resolver + onError fallback so broken images
-    don't show the broken icon.
-  - If you have a local placeholder image in /src/assets/, replace PLACEHOLDER_URL
-    with `import placeholder from "../assets/placeholder.png";` and use that value.
-*/
 const PLACEHOLDER_URL = "https://via.placeholder.com/150?text=No+Image";
 
-function sanitizeUrl(url) {
-  if (!url) return null;
-  try {
-    // remove surrounding quotes if any and trim whitespace
-    let s = String(url).trim().replace(/^["']|["']$/g, "");
-    // encodeURI so spaces and special chars don't break request
-    s = encodeURI(s);
-    return s;
-  } catch (err) {
-    console.warn("sanitizeUrl error:", err, url);
-    return url;
-  }
-}
-
-function getImageSrcFromProduct(product) {
-  // candidate sources in order of preference
-  // we check many shapes because cart snapshots sometimes differ
-  const candidates = [];
-
-  if (!product) return PLACEHOLDER_URL;
-
-  // common fields
-  candidates.push(product.image); // single image field
-  // product.images might be array of objects like [{url: '...'}]
-  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-    const first = product.images[0];
-    // support either object { url: '...' } or string '...'
-    candidates.push(first?.url ?? first);
-  }
-  // some payloads may have different properties
-  candidates.push(product.thumbnail, product.img, product.picture);
-
-  // sanitize and return first usable
-  for (const c of candidates) {
-    if (!c) continue;
-    const s = sanitizeUrl(c);
-    if (s) return s;
-  }
-
-  return PLACEHOLDER_URL;
-}
-
 export default function Cart() {
-  const { items, remove } = useContext(CartContext);
+  const { items, remove, updateQuantity } = useContext(CartContext);
+  const [shippingMode, setShippingMode] = useState("pickup"); // pickup | delivery
   const nav = useNavigate();
 
-  const total = items.reduce(
-    (s, i) => s + (i.product?.price || 0) * i.quantity,
-    0
-  );
+  // Compute subtotal with discount
+  const subtotal = useMemo(() => {
+    return items.reduce((sum, item) => {
+      const price = item.product?.price || 0;
+      const discount = item.product?.discount || 0;
+      const discountedPrice =
+        discount > 0 ? price - (price * discount) / 100 : price;
+      return sum + discountedPrice * item.quantity;
+    }, 0);
+  }, [items]);
+
+  // Compute shipping dynamically
+  const shippingCost = shippingMode === "delivery" ? 500 : 0;
+  const total = subtotal + shippingCost;
 
   return (
-    <div className="container mx-auto px-6 py-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">
-        Your Cart
-      </h2>
+    <div className="container mx-auto px-4 md:px-8 py-10">
+      {/* ===== HEADER ===== */}
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">
+          My Cart
+        </h2>
+        <Link
+          to="/products"
+          className="text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+        >
+          ← Continue shopping
+        </Link>
+      </div>
 
+      {/* ===== EMPTY STATE ===== */}
       {items.length === 0 ? (
         <div className="text-gray-600 dark:text-gray-400">
           <p>Your cart is empty.</p>
-          <Link to="/products" className="text-primary dark:text-accent">
+          <Link to="/products" className="text-primary dark:text-accent underline">
             Start shopping
           </Link>
         </div>
       ) : (
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* ================== CART ITEMS ================== */}
-          <div className="md:col-span-2 space-y-4">
-            {items.map((i) => {
-              const imgSrc = getImageSrcFromProduct(i.product);
+        <div className="space-y-8">
+          {/* ===== CART ITEMS TABLE ===== */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+            <table className="w-full text-sm md:text-base">
+              <thead className="border-b border-gray-200 dark:border-gray-700">
+                <tr className="text-gray-600 dark:text-gray-300">
+                  <th className="text-left py-4 px-4 md:px-6">PRODUCT</th>
+                  <th className="text-left py-4 px-4 md:px-6">PRICE</th>
+                  <th className="text-center py-4 px-4 md:px-6">QTY</th>
+                  <th className="text-right py-4 px-4 md:px-6">TOTAL</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => {
+                  const price = item.product?.price || 0;
+                  const discount = item.product?.discount || 0;
+                  const discountedPrice =
+                    discount > 0 ? price - (price * discount) / 100 : price;
 
-              return (
-                <div
-                  key={i.id}
-                  className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm 
-                           flex items-center gap-4"
-                >
-                  {/* 
-                    - crossOrigin="anonymous" helps if the remote host supports CORS and you need to fetch with credentials disabled.
-                    - onError fallback will replace failed images with placeholder and log original URL + product for debugging.
-                  */}
-                  <img
-                    src={imgSrc}
-                    alt={i.product?.name || "Product"}
-                    className="w-20 h-20 object-contain rounded bg-gray-100 dark:bg-gray-700"
-                    crossOrigin="anonymous"
-                    onError={(e) => {
-                      // Prevent infinite loop if placeholder fails
-                      e.target.onerror = null;
-                      console.warn("Product image failed to load, falling back. src:", e.target.src, "product:", i.product);
-                      e.target.src = PLACEHOLDER_URL;
-                    }}
-                  />
-
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-800 dark:text-gray-100">
-                      {i.product?.name}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Ksh {i.product?.price}
-                    </div>
-                    <div className="text-sm">Qty: {i.quantity}</div>
-                  </div>
-
-                  <div className="ml-auto">
-                    <button
-                      className="text-red-600 dark:text-red-400 hover:underline"
-                      onClick={() => remove(i.id)}
+                  return (
+                    <tr
+                      key={item.id}
+                      className="border-b border-gray-100 dark:border-gray-700 last:border-none"
                     >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                      <td className="flex items-center gap-4 py-4 px-4 md:px-6">
+                        <img
+                          src={
+                            item.product?.images?.[0]?.url ||
+                            item.product?.image ||
+                            PLACEHOLDER_URL
+                          }
+                          alt={item.product?.name}
+                          className="w-16 h-16 object-contain rounded bg-gray-100 dark:bg-gray-700"
+                          onError={(e) => (e.target.src = PLACEHOLDER_URL)}
+                        />
+                        <div>
+                          <h3 className="font-semibold text-gray-800 dark:text-gray-100">
+                            {item.product?.name}
+                          </h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {item.product?.description || "No description"}
+                          </p>
+                        </div>
+                      </td>
+
+                      <td className="py-4 px-4 md:px-6 text-gray-700 dark:text-gray-300">
+                        {discount > 0 ? (
+                          <div>
+                            <span className="text-red-500 line-through text-xs block">
+                              Ksh {price.toLocaleString()}
+                            </span>
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">
+                              Ksh {discountedPrice.toLocaleString()}
+                            </span>
+                          </div>
+                        ) : (
+                          <>Ksh {price.toLocaleString()}</>
+                        )}
+                      </td>
+
+                      <td className="py-4 px-4 md:px-6 text-center">
+                        <div className="inline-flex items-center border border-gray-300 dark:border-gray-600 rounded-md">
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity - 1)
+                            }
+                            className="px-3 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            −
+                          </button>
+                          <span className="px-3 text-gray-800 dark:text-gray-100">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
+                            className="px-3 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </td>
+
+                      <td className="py-4 px-4 md:px-6 text-right text-gray-900 dark:text-gray-100 font-semibold">
+                        Ksh {(discountedPrice * item.quantity).toLocaleString()}
+                        <button
+                          onClick={() => remove(item.id)}
+                          className="ml-3 text-red-500 hover:text-red-700 text-sm"
+                          title="Remove"
+                        >
+                          ✕
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
-          {/* ================== SUMMARY ================== */}
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md h-fit">
-            <div className="font-semibold text-gray-800 dark:text-gray-100">
-              Summary
+          {/* ===== SHIPPING & SUMMARY ===== */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Shipping Mode */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                Choose shipping mode:
+              </h4>
+
+              <div className="space-y-3 text-sm">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="shipping"
+                    value="pickup"
+                    checked={shippingMode === "pickup"}
+                    onChange={(e) => setShippingMode(e.target.value)}
+                  />
+                  <div>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">
+                      Store pickup (in 20 min)
+                    </span>
+                    <span className="text-green-500 ml-2">FREE</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="shipping"
+                    value="delivery"
+                    checked={shippingMode === "delivery"}
+                    onChange={(e) => setShippingMode(e.target.value)}
+                  />
+                  <div>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">
+                      Delivery at home (1–4 days)
+                    </span>
+                    <span className="text-gray-500 ml-2">Ksh 500</span>
+                  </div>
+                </label>
+              </div>
             </div>
-            <div className="mt-2 text-gray-700 dark:text-gray-300">
-              Total:{" "}
-              <span className="font-bold text-gray-900 dark:text-gray-100">
-                Ksh {total}
-              </span>
+
+            {/* Summary */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>Ksh {subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className={shippingCost ? "text-gray-500" : "text-green-500"}>
+                    {shippingCost ? `Ksh ${shippingCost}` : "Free"}
+                  </span>
+                </div>
+                <hr className="my-2 border-gray-300 dark:border-gray-700" />
+                <div className="flex justify-between font-bold text-gray-900 dark:text-gray-100 text-lg">
+                  <span>Total</span>
+                  <span>Ksh {total.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => nav("/checkout")}
+                className="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg shadow transition"
+              >
+                Checkout
+              </button>
             </div>
-            <button
-              onClick={() => nav("/checkout")}
-              className="mt-4 w-full bg-primary dark:bg-accent text-white p-2 rounded hover:opacity-90 transition"
-            >
-              Checkout
-            </button>
           </div>
         </div>
       )}
