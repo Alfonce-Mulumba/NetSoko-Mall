@@ -62,28 +62,26 @@ const publicApi = {
 // ===========================
 const adminApi = {
   // 🔸 Product Management
-  adminGetProducts: () => api.get("/admin/products"),
-  adminCreateProduct: (data) => api.post("/admin/products", data),
-  adminUpdateStock: (id, body) => api.put(`/admin/products/${id}/stock`, body),
-  adminUpdateDiscount: (id, body) =>
-    api.put(`/admin/products/${id}/discount`, body),
-  adminUpdateProduct: (id, data) => api.put(`/admin/products/${id}`, data),
-  adminDeleteProduct: (id) => api.delete(`/admin/products/${id}`),
+  adminGetProducts: () => API.get("/admin/products"),
+  adminCreateProduct: (data) => API.post("/admin/products", data),
+  adminUpdateStock: (id, body) => API.put(`/admin/products/${id}/stock`, body),
+  adminUpdateDiscount: (id, body) => API.put(`/admin/products/${id}/discount`, body),
+  adminUpdateProduct: (id, data) => API.put(`/admin/products/${id}`, data),
+  adminDeleteProduct: (id) => API.delete(`/admin/products/${id}`),
 
   // 🔸 User Management
-  adminGetUsers: () => api.get("/admin/users"),
-  adminDeleteUser: (id) => api.delete(`/admin/users/${id}`),
+  adminGetUsers: () => API.get("/admin/users"),
+  adminDeleteUser: (id) => API.delete(`/admin/users/${id}`),
 
   // 🔸 Orders
-  adminGetOrders: () => api.get("/admin/orders"),
-  adminUpdateOrder: (id, body) => api.put(`/admin/orders/${id}`, body),
+  adminGetOrders: () => API.get("/admin/orders"),
+  adminUpdateOrder: (id, body) => API.put(`/admin/orders/${id}`, body),
 
   // 🔸 Analytics & Complaints
-  adminGetAnalytics: () => api.get("/admin/analytics"),
-  adminGetComplaints: () => api.get("/admin/complaints"),
-  adminMarkComplaintRead: (id) => api.put(`/admin/complaints/${id}/read`),
-  adminUnreadComplaintsCount: () =>
-    api.get("/admin/complaints/unread/count"),
+  adminGetAnalytics: () => API.get("/admin/analytics"),
+  adminGetComplaints: () => API.get("/admin/complaints"),
+  adminMarkComplaintRead: (id) => API.put(`/admin/complaints/${id}/read`),
+  adminUnreadComplaintsCount: () => API.get("/admin/complaints/unread/count"),
 };
 
 // Export combined API

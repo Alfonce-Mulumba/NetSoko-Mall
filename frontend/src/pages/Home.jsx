@@ -139,11 +139,11 @@ export default function Home() {
         size === "small"
           ? "grid-cols-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
           : size === "medium"
-          ? "grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6"
+          ? "grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7"
           : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
 
       const cardSize = {
-        small: { minWidth: "max-w-[500px]", imageHeight: "max-h-24", padding: "p-0", text: "text-xs" },
+        small: { minWidth: "max-w-[300px]", imageHeight: "max-h-30", padding: "p-0", text: "text-xs" },
         medium: { minWidth: "min-w-[180px]", imageHeight: "h-36", padding: "p-3", text: "text-sm" },
         large: { minWidth: "min-w-[220px]", imageHeight: "h-44", padding: "p-4", text: "text-base" },
       }[size];
