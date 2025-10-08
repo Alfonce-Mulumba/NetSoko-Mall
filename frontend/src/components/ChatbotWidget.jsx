@@ -58,7 +58,7 @@ export default function ChatbotWidget() {
     if (userMsg === "1") {
       typeBotMessage("Please enter your Order ID:");
     } else if (userMsg === "2") {
-      typeBotMessage("Please describe the problem, and I’ll forward it to support:");
+      typeBotMessage("Please describe the problem, and I’ll forward it to the support team:");
     } else if (/^\d+$/.test(userMsg)) {
       // Numeric = Order ID
       setLoading(true);
@@ -76,7 +76,7 @@ export default function ChatbotWidget() {
         );
       } catch (err) {
         setMessages((prev) => prev.slice(0, -1));
-        typeBotMessage(err?.response?.data?.message || "❌ Error checking order.");
+        typeBotMessage(err?.response?.data?.message || "❌ Error checking order, please try again.");
       }
       setLoading(false);
     } else if (userMsg.length > 5) {

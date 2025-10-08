@@ -8,9 +8,14 @@ import {
 
 const router = express.Router();
 
+// ✅ Final API endpoints:
+// GET /api/products
+// GET /api/products/hot
+// GET /api/products/search
+// GET /api/products/:id
+router.get("/", getProducts);
+router.get("/hot", getHotProducts);
 router.get("/search", searchProducts);
-router.get("/products", getProducts);
-router.get("/products/hot", getHotProducts);
 router.get("/:id", getProductById);
 
 export default router;

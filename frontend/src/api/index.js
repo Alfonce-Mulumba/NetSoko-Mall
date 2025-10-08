@@ -1,58 +1,93 @@
+// frontend/src/api/index.js
 import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
-const api = axios.create({
-  baseURL: API_BASE,
-  withCredentials: false,
+// Create Axios instance
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
+// ✅ Automatically attach token if user is logged in
+API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;}
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
-export default {
-  register: (data) => api.post("/auth/register", data),
-  verify: (data) => api.post("/auth/verify", data),
-  login: (data) => api.post("/auth/login", data),
-  forgot: (data) => api.post("/auth/forgot", data),
-  reset: (data) => api.post("/auth/reset", data),
-  resend: (data) => api.post("/auth/resend-code", data),
+// ===========================
+// PUBLIC ENDPOINTS
+// ===========================
+const publicApi = {
+  // 🔹 Auth
+  register: (data) => API.post("/auth/register", data),
+  verify: (data) => API.post("/auth/verify", data),
+  login: (data) => API.post("/auth/login", data),
+  forgot: (data) => API.post("/auth/forgot", data),
+  reset: (data) => API.post("/auth/reset", data),
+  resend: (data) => API.post("/auth/resend-code", data),
 
-  getProducts: (params) => api.get("/products", { params }),
-  getHotProducts: (limit = 8) => api.get(`/products/hot?limit=${limit}`),
-  getProductById: (id) => api.get(`/products/${id}`),
-  searchProducts: (params) => api.get("/products/search", { params }),
+  // 🔹 Products (public shop)
+  getProducts: (params) => API.get("/products", { params }), // ✅ public route
+  getHotProducts: (limit = 8) => API.get(`/products/hot?limit=${limit}`),
+  getProductById: (id) => API.get(`/products/${id}`),
+  searchProducts: (params) => API.get("/products/search", { params }),
 
-  addToCart: (data) => api.post("/cart/add", data),
-  getCart: () => api.get("/cart"),
-  removeFromCart: (id) => api.delete(`/cart/${id}`),
+  // 🔹 Cart
+  addToCart: (data) => API.post("/cart/add", data),
+  getCart: () => API.get("/cart"),
+  removeFromCart: (id) => API.delete(`/cart/${id}`),
 
-  placeOrder: (data) => api.post("/orders", data),
-  getOrders: () => api.get("/orders"),
-  getOrderById: (id) => api.get(`/orders/${id}`),
+  // 🔹 Orders
+  placeOrder: (data) => API.post("/orders", data),
+  getOrders: () => API.get("/orders"),
+  getOrderById: (id) => API.get(`/orders/${id}`),
 
-  addAddress: (data) => api.post("/addresses", data),
-  getAddresses: () => api.get("/addresses"),
+  // 🔹 Addresses
+  getAddresses: () => API.get("/addresses"),
+  addAddress: (data) => API.post("/addresses", data),
+  deleteAddress: (id) => API.delete(`/addresses/${id}`),
+  setDefaultAddress: (id) => API.put(`/addresses/${id}/default`),
 
-  checkOrderStatus: (orderId) => api.get(`/orders/${orderId}`),
-  reportProblem: (data) => api.post("/chatbot/report", data),
+  // 🔹 Chatbot & Reports
+  checkOrderStatus: (orderId) => API.get(`/orders/${orderId}`),
+  reportProblem: (data) => API.post("/chatbot/report", data),
+};
 
+// ===========================
+// ADMIN ENDPOINTS (protected)
+// ===========================
+const adminApi = {
+  // 🔸 Product Management
   adminGetProducts: () => api.get("/admin/products"),
   adminCreateProduct: (data) => api.post("/admin/products", data),
   adminUpdateStock: (id, body) => api.put(`/admin/products/${id}/stock`, body),
-  adminUpdateDiscount: (id, body) => api.put(`/admin/products/${id}/discount`, body),
-  adminDeleteProduct: (id) => api.delete(`/admin/products/${id}`),
+  adminUpdateDiscount: (id, body) =>
+    api.put(`/admin/products/${id}/discount`, body),
   adminUpdateProduct: (id, data) => api.put(`/admin/products/${id}`, data),
+  adminDeleteProduct: (id) => api.delete(`/admin/products/${id}`),
+
+  // 🔸 User Management
   adminGetUsers: () => api.get("/admin/users"),
   adminDeleteUser: (id) => api.delete(`/admin/users/${id}`),
+
+  // 🔸 Orders
   adminGetOrders: () => api.get("/admin/orders"),
   adminUpdateOrder: (id, body) => api.put(`/admin/orders/${id}`, body),
+
+  // 🔸 Analytics & Complaints
   adminGetAnalytics: () => api.get("/admin/analytics"),
   adminGetComplaints: () => api.get("/admin/complaints"),
   adminMarkComplaintRead: (id) => api.put(`/admin/complaints/${id}/read`),
-  adminUnreadComplaintsCount: () => api.get("/admin/complaints/unread/count"),
+  adminUnreadComplaintsCount: () =>
+    api.get("/admin/complaints/unread/count"),
+};
+
+// Export combined API
+export default {
+  ...publicApi,
+  ...adminApi,
 };

@@ -1,7 +1,8 @@
 import express from "express";
 import { protect, verifyAdmin } from "../middleware/authMiddleware.js";
 import { getComplaints, markComplaintRead, getUnreadComplaintsCount } from "../controllers/adminController.js";
-import { createProduct, applyDiscount, updateStock, getProducts, deleteProduct, getUsers, deleteUser, getOrders, updateOrder, getAnalytics, updateProduct } from "../controllers/adminController.js";
+import { createProduct, applyDiscount, updateStock, deleteProduct, getUsers, deleteUser, getOrders, updateOrder, getAnalytics, updateProduct } from "../controllers/adminController.js";
+import { getProducts as adminGetProducts } from "../controllers/productController.js";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.use(protect, verifyAdmin);
 router.post("/products", createProduct);
 router.put("/products/:id/discount", applyDiscount);
 router.put("/products/:id/stock", updateStock);
-router.get("/products", getProducts);
+router.get("/products", verifyAdmin, adminGetProducts);
 router.delete("/products/:id", deleteProduct);
 router.put("/products/:id", updateProduct);
 router.get("/users", getUsers);

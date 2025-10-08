@@ -78,6 +78,7 @@ model DeliveryAddress {
   phone     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isDefault Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id])
   orders    Order[]
 }

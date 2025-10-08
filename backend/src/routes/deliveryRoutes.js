@@ -1,17 +1,18 @@
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
 import {
-  addAddress,
   getAddresses,
-  updateAddress,
+  addAddress,
   deleteAddress,
+  setDefaultAddress,
 } from "../controllers/deliveryController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", protect, addAddress);
+// ✅ All address routes must start from here:
 router.get("/", protect, getAddresses);
-router.put("/:id", protect, updateAddress);
+router.post("/", protect, addAddress);
 router.delete("/:id", protect, deleteAddress);
+router.put("/:id/default", protect, setDefaultAddress);
 
 export default router;

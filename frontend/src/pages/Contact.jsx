@@ -18,7 +18,7 @@ export default function Contact() {
 
         <p className="text-gray-600 dark:text-gray-300 mb-8">
           Have questions, feedback, or need support? Fill out the form below or
-          reach us directly.
+          reach us directly. You can also use the chatbot for quick feedback!
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">

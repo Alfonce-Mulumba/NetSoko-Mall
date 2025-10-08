@@ -37,14 +37,14 @@ export const registerUser = async (req, res) => {
 
     if (existing) {
       if (existing.is_verified) {
-        return res.status(400).json({ message: "User email already exists" });
+        return res.status(400).json({ message: "User email already exists, please login or enter a different email" });
       } else {
         await prisma.user.update({
           where: { email },
           data: { verification_code: code, verification_expires: expires, password: hashed },
         });
         await sendMail(email, "Verify your NetSoko account", `Your verification code is: ${code}`);
-        return res.json({ message: "Verification code resent. Please check your email." });
+        return res.json({ message: "We have sent a new erification code. Please check your email." });
       }
     }
 
@@ -62,7 +62,7 @@ export const registerUser = async (req, res) => {
     });
 
     await sendMail(email, "Verify your NetSoko account", `Your verification code is: ${code}`);
-    return res.json({ message: "User registered successfully. Check your email for verification code." });
+    return res.json({ message: "Registration succesful. Check your email for verification code." });
 } catch (err) {
   console.error("registerUser error:", err);
 
@@ -77,12 +77,12 @@ export const registerUser = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   try {
     const { email, code } = req.body;
-    if (!email || !code) return res.status(400).json({ message: "email and code required" });
+    if (!email || !code) return res.status(400).json({ message: "Please enter your email and verification code" });
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.is_verified) return res.json({ message: "Email already verified" });
+    if (user.is_verified) return res.json({ message: "Email already verified, proceed to login" });
 
     if (!user.verification_code || !user.verification_expires) {
       return res.status(400).json({ message: "Verification code not found or has expired. Click resend to request a new one." });
