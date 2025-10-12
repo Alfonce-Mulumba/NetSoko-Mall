@@ -2,49 +2,57 @@ import { prisma } from "../config/db.js";
 
 export const addToCart = async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
+    const { productId, quantity, color, size } = req.body;
     const userId = req.user.id;
 
-    // Check if product exists
+    console.log("🛒 Incoming Add to Cart:", { productId, quantity, color, size, userId });
+
+    // 1️⃣ Check if product exists
     const product = await prisma.product.findUnique({
       where: { id: productId },
       select: { id: true, price: true, discount: true },
     });
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // Compute effective price (after discount)
+    // 2️⃣ Compute effective price
     const effectivePrice =
       product.discount && product.discount > 0
         ? product.price - (product.price * product.discount) / 100
         : product.price;
 
-    // If product already exists in cart, update it
+    // 3️⃣ Check if same product/variant already in cart
     const existing = await prisma.cart.findFirst({
-      where: { userId, productId },
+      where: { userId, productId, color, size },
     });
 
     let cartItem;
     if (existing) {
       cartItem = await prisma.cart.update({
         where: { id: existing.id },
-        data: { quantity: existing.quantity + quantity, price: effectivePrice },
+        data: {
+          quantity: existing.quantity + quantity,
+          price: effectivePrice,
+        },
       });
     } else {
       cartItem = await prisma.cart.create({
-        data: { userId, productId, quantity, price: effectivePrice },
+        data: {
+          userId,
+          productId,
+          quantity,
+          price: effectivePrice,
+          color,
+          size,
+        },
       });
     }
 
+    console.log("✅ Cart updated:", cartItem);
     res.status(201).json(cartItem);
   } catch (err) {
-    console.error("Error adding product to cart:", err);
-    res.status(500).json({
-      message: "Error adding product to cart",
-      error: err.message,
-    });
+    console.error("🔥 Error adding product to cart:", err);
+    res.status(500).json({ message: "Error adding product to cart", error: err.message });
   }
 };
 
@@ -68,30 +76,22 @@ export const getCart = async (req, res) => {
       },
     });
 
-    // Ensure frontend gets computed discounted price as well
     const formatted = items.map((item) => {
       const product = item.product;
       const discountedPrice =
         product.discount && product.discount > 0
           ? product.price - (product.price * product.discount) / 100
           : product.price;
-
       return {
         ...item,
-        product: {
-          ...product,
-          discountedPrice,
-        },
+        product: { ...product, discountedPrice },
       };
     });
 
     res.json(formatted);
   } catch (err) {
     console.error("Error fetching cart:", err);
-    res.status(500).json({
-      message: "Error fetching cart",
-      error: err.message,
-    });
+    res.status(500).json({ message: "Error fetching cart", error: err.message });
   }
 };
 
@@ -102,9 +102,6 @@ export const removeFromCart = async (req, res) => {
     res.json({ message: "Item removed" });
   } catch (err) {
     console.error("Error removing from cart:", err);
-    res.status(500).json({
-      message: "Error removing from cart, try again",
-      error: err.message,
-    });
+    res.status(500).json({ message: "Error removing from cart", error: err.message });
   }
 };

@@ -28,7 +28,6 @@ export default function Navbar() {
     { name: "Contact", to: "/contact" },
   ];
 
-  // ✅ Hide only on home page when scrolling down
   useEffect(() => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
@@ -51,7 +50,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY, location.pathname]);
 
-  // ✅ Show when cursor is near top
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (e.clientY < 60) setVisible(true);
@@ -67,7 +65,6 @@ export default function Navbar() {
       } backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-700 shadow-sm`}
     >
       <div className="container mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
-        {/* LEFT: Logo */}
         <div
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => nav("/")}
@@ -82,7 +79,6 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* CENTER: Nav Links */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
           {links.map((link) => (
             <Link
@@ -98,7 +94,6 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* ✅ Show Admin link for admin users */}
           {user?.role === "admin" && (
             <Link
               to="/admin"
@@ -113,7 +108,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* RIGHT: Icons */}
         <div className="flex items-center gap-4">
           {user ? (
             <button
@@ -139,7 +133,6 @@ export default function Navbar() {
             </>
           )}
 
-          {/* Cart */}
           <button
             onClick={() => nav("/cart")}
             className="relative text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-accent"
@@ -161,7 +154,6 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* MOBILE MENU TOGGLE */}
           <button
             onClick={() => setOpen(!open)}
             className="md:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -175,7 +167,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU */}
       {open && (
         <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-4 px-6 flex flex-col gap-3 text-sm">
           {links.map((link) => (

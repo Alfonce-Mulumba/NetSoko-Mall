@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import asyncHandler from "express-async-handler"; // ✅ added
+
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -15,7 +17,7 @@ const transporter = nodemailer.createTransport({
 const sendMail = async (to, subject, text) => {
   try {
     await transporter.sendMail({
-      from: `"Net-Soko" <${process.env.EMAIL_USER}>`,
+      from: `"NetSoko" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text,
@@ -244,4 +246,29 @@ export const resetPassword = async (req, res) => {
     return res.status(500).json({ message: "Error resetting password", error: err?.message || String(err) });
   }
 };
+
+export const getProfile = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  res.json(user);
+});
+
 

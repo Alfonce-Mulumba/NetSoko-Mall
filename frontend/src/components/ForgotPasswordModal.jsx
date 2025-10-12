@@ -107,7 +107,6 @@ export default function ForgotPasswordModal({ open, setOpen }) {
         </Dialog>
       </Transition>
 
-      {/* Keep the ResetPasswordModal integration unchanged */}
       <ResetPasswordModal
         open={showReset}
         setOpen={setShowReset}

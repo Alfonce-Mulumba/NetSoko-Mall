@@ -55,7 +55,7 @@ export default function Contact() {
         </form>
 
         <div className="mt-10 text-gray-700 dark:text-gray-300">
-          <p><strong>Email:</strong> netsoko.care@gmail.com</p>
+          <p><strong>Email:</strong> <link></link>netsoko.care@gmail.com</p>
           <p><strong>Phone:</strong> +254 701 156 348</p>
           <p><strong>Location:</strong> Nairobi, Kenya</p>
         </div>

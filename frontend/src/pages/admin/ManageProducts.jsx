@@ -14,6 +14,13 @@ export default function ManageProducts() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [imageUrls, setImageUrls] = useState([]);
+
+  // ✅ new optional fields
+  const [isHot, setIsHot] = useState(false);
+  const [size, setSize] = useState("");
+  const [color, setColor] = useState("");
+  const [stock, setStock] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   // Fetch products
@@ -76,6 +83,11 @@ export default function ManageProducts() {
         price,
         category,
         images: imageUrls,
+        // ✅ new optional fields
+        isHot,
+        size: size || undefined,
+        color: color || undefined,
+        stock: stock || undefined,
       });
       toast.success("✅ Product added successfully!");
       setName("");
@@ -83,6 +95,10 @@ export default function ManageProducts() {
       setPrice("");
       setCategory("");
       setImageUrls([]);
+      setIsHot(false);
+      setSize("");
+      setColor("");
+      setStock("");
       fetchProducts();
     } catch (err) {
       console.error("Add product failed:", err);
@@ -140,8 +156,43 @@ export default function ManageProducts() {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           placeholder="Category"
-          className="border p-2 w-full mb-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="border p-2 w-full mb-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
+
+        {/* ✅ New Optional Fields */}
+        <div className="grid md:grid-cols-2 gap-2 mb-3">
+          <input
+            value={size}
+            onChange={(e) => setSize(e.target.value)}
+            placeholder="Size (optional)"
+            className="border p-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+          <input
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            placeholder="Colour (optional)"
+            className="border p-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+        </div>
+        <div className="grid md:grid-cols-2 gap-2 mb-3">
+          <input
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            placeholder="Stock quantity (optional)"
+            type="number"
+            className="border p-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+          <label className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
+            <input
+              type="checkbox"
+              checked={isHot}
+              onChange={(e) => setIsHot(e.target.checked)}
+              className="w-4 h-4"
+            />
+            Hot Product (🔥 Trending)
+          </label>
+        </div>
+
         <input type="file" multiple onChange={handleUpload} className="mb-2" />
         <div className="flex gap-2 mb-2 flex-wrap">
           {imageUrls.map((url, i) => (
@@ -185,6 +236,15 @@ export default function ManageProducts() {
                 </div>
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   Ksh {p.price}
+                </div>
+                {/* ✅ Display optional fields if exist */}
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {p.size && <>Size: {p.size} · </>}
+                  {p.color && <>Color: {p.color} · </>}
+                  {p.stock && <>Stock: {p.stock}</>}
+                  {p.isHot && (
+                    <span className="ml-1 text-red-500 font-semibold">🔥 Hot</span>
+                  )}
                 </div>
               </div>
               <div className="ml-auto flex gap-4">

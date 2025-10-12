@@ -10,7 +10,6 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     try {
       const res = await api.getCart();
-      // Ensure product has images populated
       const normalized = res.data.map((i) => ({
         ...i,
         product: {
@@ -34,17 +33,19 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
-  const add = async (productId, quantity = 1) => {
+  // ✅ FIXED add() method to accept the full object structure expected by backend
+  const add = async (productId, quantity = 1, colorId = null, sizeId = null) => {
     setSyncing(true);
     try {
-      const res = await api.addToCart({ productId, quantity });
-      await fetchCart(); // Refresh cart after add
-      setSyncing(false);
+      const payload = { productId, quantity, colorId, sizeId };
+      const res = await api.addToCart(payload);
+      await fetchCart(); // Refresh cart
       return res.data;
     } catch (err) {
       console.error("Add to cart failed:", err);
-      setSyncing(false);
       throw err;
+    } finally {
+      setSyncing(false);
     }
   };
 

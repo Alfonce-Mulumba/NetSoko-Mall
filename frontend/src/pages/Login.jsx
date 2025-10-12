@@ -2,10 +2,10 @@ import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import ForgotPasswordModal from "../components/ForgotPasswordModal.jsx";
-import logoBlack from "../assets/logoBlack.jpg"; // 👈 import your logo
+import logoBlack from "../assets/logoBlack.jpg";
 
 export default function LoginPage() {
-  const { login } = useContext(AuthContext);
+  const { login, loading } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -14,8 +14,11 @@ export default function LoginPage() {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      nav("/");
+      const res = await login(email, password);
+      if (res?.user) {
+        // ✅ Ensure navigation happens once after successful login
+        nav("/");
+      }
     } catch (err) {
       alert(err?.response?.data?.message || "Error logging in");
     }
@@ -50,10 +53,12 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={submit} className="space-y-4">
           <input
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400"
             placeholder="Email"
+            required
           />
           <input
             type="password"
@@ -61,14 +66,18 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400"
             placeholder="Password"
+            required
           />
 
           <div className="flex justify-between items-center">
             <button
               type="submit"
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-xl shadow hover:opacity-90 transition"
+              disabled={loading}
+              className={`bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-xl shadow hover:opacity-90 transition ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
 
             <button
