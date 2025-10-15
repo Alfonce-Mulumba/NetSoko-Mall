@@ -28,7 +28,7 @@ export default function ManageOrders() {
     if (!newStatus) return;
 
     try {
-      await api.adminUpdateOrderStatus(orderId, { status: newStatus });
+      await api.adminUpdateOrder(orderId, { status: newStatus });
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       );

@@ -18,7 +18,7 @@ export default function AdminLayout() {
       <aside className="w-64 bg-gray-800 text-white p-4">
         <h2 className="text-xl font-bold mb-6">Admin</h2>
         <nav className="space-y-3">
-          <Link to="/admin" className="block hover:underline">Dashboard</Link>
+          <Link to="/admin" className="block hover:underline">Performance</Link>
           <Link to="/admin/products" className="block hover:underline">Manage Products</Link>
           <Link to="/admin/orders" className="block hover:underline">Manage Orders</Link>
           <Link to="/admin/users" className="block hover:underline">Manage Users</Link>

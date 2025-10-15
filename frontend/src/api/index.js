@@ -101,7 +101,7 @@ const adminApi = {
   adminDeleteUser: (id) => API.delete(`/admin/users/${id}`),
   adminUpdateUser: (id, data) => API.put(`/admin/users/${id}`, data),
 
-  adminGetOrders: () => API.get("/admin/orders"),
+  adminGetAllOrders: () => API.get("/admin/orders"),
   adminUpdateOrder: (id, body) => API.put(`/admin/orders/${id}`, body),
 
   adminGetAnalytics: () => API.get("/admin/analytics"),

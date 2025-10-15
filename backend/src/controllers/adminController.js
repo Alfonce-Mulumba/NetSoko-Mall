@@ -192,17 +192,29 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-export const getOrders = async (req, res) => {
+export const getAllOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
       include: {
-        user: { select: { id: true, name: true, email: true } },
-        products: true,
+        user: {
+          select: { id: true, name: true, email: true },
+        },
+        orderItems: {
+          include: {
+            product: {
+              select: { name: true, price: true },
+            },
+          },
+        },
+        deliveryAddress: true, // include if it exists
       },
+      orderBy: { createdAt: "desc" },
     });
+
     res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching orders", error: error.message });
+  } catch (err) {
+    console.error("❌ Prisma error while fetching orders:", err);
+    res.status(500).json({ error: "Failed to fetch orders" });
   }
 };
 

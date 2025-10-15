@@ -25,32 +25,32 @@ model User {
   complaint              Complaint[]
   deliveryAddress        DeliveryAddress[]
   orders                 Order[]
-  reviews                Review[]          // user's reviews (optional relation)
+  reviews                Review[] // user's reviews (optional relation)
 }
 
 model Product {
-  id             Int             @id @default(autoincrement())
-  name           String
-  description    String
+  id               Int            @id @default(autoincrement())
+  name             String
+  description      String
   shortDescription String?
   longDescription  String?
-  price          Float
-  discountedPrice Float?          // optional explicit discounted price
-  stock          Int             @default(0) // total stock (fallback)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  category       String?
-  hot            Boolean         @default(false)
-  discount       Int?            // percentage discount (optional)
-  cart           Cart[]
-  orderItems     OrderItem[]
-  images         ProductImage[]
+  price            Float
+  discountedPrice  Float? // optional explicit discounted price
+  stock            Int            @default(0) // total stock (fallback)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  category         String?
+  hot              Boolean        @default(false)
+  discount         Int? // percentage discount (optional)
+  cart             Cart[]
+  orderItems       OrderItem[]
+  images           ProductImage[]
   // sizes are stored in ProductSize for per-size stock, keep that model for inventory control
-  sizes         ProductSize[]
+  sizes            ProductSize[]
   // quick frontend-friendly arrays
-  colors        String[]         // e.g. ["#000000","Red","Blue"]
-  sku           String?
-  reviews       Review[]         // relation to reviews
+  colors           String[] // e.g. ["#000000","Red","Blue"]
+  sku              String?
+  reviews          Review[] // relation to reviews
 }
 
 model ProductImage {
@@ -69,18 +69,18 @@ model ProductSize {
 }
 
 model Cart {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   userId    Int
   productId Int
   price     Float
   quantity  Int
   // store selected options so cart -> order preserves what user chose
-  color     String? 
+  color     String?
   size      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  product   Product @relation(fields: [productId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model DeliveryAddress {
@@ -133,17 +133,17 @@ model Complaint {
 }
 
 model Review {
-  id         Int      @id @default(autoincrement())
-  productId  Int
-  userId     Int?       // optional (allow anonymous if you choose — but protect routes accordingly)
-  userName   String?    // fallback display name
-  rating     Int        // 1..5 (validate in server)
-  comment    String
-  likes      Int        @default(0)
-  dislikes   Int        @default(0)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        Int      @id @default(autoincrement())
+  productId Int
+  userId    Int? // optional (allow anonymous if you choose — but protect routes accordingly)
+  userName  String? // fallback display name
+  rating    Int // 1..5 (validate in server)
+  comment   String
+  likes     Int      @default(0)
+  dislikes  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  product    Product    @relation(fields: [productId], references: [id])
-  user       User?      @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  user    User?   @relation(fields: [userId], references: [id])
 }
