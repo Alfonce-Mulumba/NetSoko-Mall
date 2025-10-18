@@ -4,10 +4,10 @@
   "description": "Net-Soko Marketplace Backend",
   "main": "src/server.js",
   "type": "module",
-  "scripts": {
-  "prepare": "chmod +x ./node_modules/.bin/*",
-  "postinstall": "chmod +x ./node_modules/.bin/* && npx prisma generate",
-  "start": "npx prisma migrate deploy && node backend/src/server.js",
+"scripts": {
+  "postinstall": "chmod +x ./node_modules/.bin/*",
+  "build": "npx prisma generate",
+  "start": "npm run build && node backend/src/server.js",
   "dev": "nodemon backend/src/server.js"
 },
   "dependencies": {
