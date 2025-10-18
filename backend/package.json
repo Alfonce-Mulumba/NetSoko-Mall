@@ -5,8 +5,9 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
+"prepare": "chmod +x ./node_modules/.bin/*",
   "postinstall": "chmod +x ./node_modules/.bin/*",
-  "start": "node backend/src/server.js"
+  "start": "npx prisma migrate deploy && node backend/src/server.js"
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",
