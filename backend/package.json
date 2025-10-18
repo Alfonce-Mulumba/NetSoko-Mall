@@ -6,9 +6,9 @@
   "type": "module",
 "scripts": {
   "postinstall": "chmod +x ./node_modules/.bin/*",
-"build": "echo 'Skipping Prisma generate on Render'",
-  "start": "npm run build && node backend/src/server.js",
-  "dev": "nodemon backend/src/server.js"
+  "build": "echo 'Skipping Prisma generate on Render'",
+  "start": "npm run build && node src/server.js",
+  "dev": "nodemon src/server.js"
 },
   "dependencies": {
     "@prisma/client": "^6.16.3",
