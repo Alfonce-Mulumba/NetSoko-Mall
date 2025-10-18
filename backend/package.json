@@ -6,7 +6,7 @@
   "type": "module",
 "scripts": {
   "postinstall": "chmod +x ./node_modules/.bin/*",
-  "build": "npx prisma generate",
+"build": "PRISMA_FORCE_GENERATE=true npx prisma generate",
   "start": "npm run build && node backend/src/server.js",
   "dev": "nodemon backend/src/server.js"
 },
