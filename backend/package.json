@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
+  "prepare": "chmod +x ./node_modules/.bin/*",
   "postinstall": "chmod +x ./node_modules/.bin/* && npx prisma generate",
   "start": "npx prisma migrate deploy && node backend/src/server.js",
   "dev": "nodemon backend/src/server.js"
