@@ -1,10 +1,13 @@
 import axios from "axios";
+import { BASE_URL } from "./config";
 
+// Create axios instance with your deployed backend URL
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  withCredentials: true,
+  baseURL: BASE_URL,
+  withCredentials: true, // keeps cookies if needed
 });
 
+// Attach JWT token automatically
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -13,8 +16,9 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Inactivity logout logic
 let logoutTimer;
-const INACTIVITY_LIMIT = 30 * 60 * 1000;
+const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes
 let isLoggingOut = false;
 
 function logoutUser(reason = "You’ve been logged out. Please log in again.") {
@@ -35,13 +39,13 @@ function resetInactivityTimer() {
   }, INACTIVITY_LIMIT);
 }
 
-
-["click", "mousemove", "keypress", "scroll", "touchstart"].forEach((evt) => {
-  window.addEventListener(evt, resetInactivityTimer);
-});
+["click", "mousemove", "keypress", "scroll", "touchstart"].forEach((evt) =>
+  window.addEventListener(evt, resetInactivityTimer)
+);
 
 resetInactivityTimer();
 
+// Handle 401 errors
 API.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -58,7 +62,7 @@ API.interceptors.response.use(
   }
 );
 
-
+// Public API calls
 const publicApi = {
   register: (data) => API.post("/auth/register", data),
   verify: (data) => API.post("/auth/verify", data),
@@ -89,6 +93,7 @@ const publicApi = {
   reportProblem: (data) => API.post("/chatbot/report", data),
 };
 
+// Admin API calls
 const adminApi = {
   adminGetProducts: () => API.get("/admin/products"),
   adminCreateProduct: (data) => API.post("/admin/products", data),
