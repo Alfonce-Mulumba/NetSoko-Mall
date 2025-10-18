@@ -33,16 +33,15 @@ app.use(express.json({ limit: "200kb" }));
 app.use(express.urlencoded({ extended: true, limit: "200kb" }));
 
 // ✅ CORS setup
-const FRONTEND = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND = process.env.FRONTEND_URL || "https://netsoko-mall-1.onrender.com";
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || origin === FRONTEND) return callback(null, true);
-      const whitelist = process.env.CORS_WHITELIST?.split(",") || [];
-      if (whitelist.includes(origin)) return callback(null, true);
       callback(new Error("Not allowed by CORS"));
     },
-    credentials: true,
+    credentials: true, // keep this to allow cookies
   })
 );
 
