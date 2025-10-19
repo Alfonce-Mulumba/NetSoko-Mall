@@ -10,9 +10,7 @@ import { fileURLToPath } from "url";
 import { prisma } from "./config/db.js";
 import logger from "./utils/logger.js";
 import { authLimiter, generalLimiter } from "./middleware/rateLimiter.js";
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-import { notFound, errorHandler } from path.join(__dirname, "middleware/errorHandler.js");
-
+import { notFound, errorHandler } from "./middleware/errorHandler.js";
 // ✅ Import routes
 import uploadRoutes from "./routes/uploadRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
