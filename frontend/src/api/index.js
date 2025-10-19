@@ -1,20 +1,19 @@
-import axios from "axios";
+// src/api/index.js
+import api from "./axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://netsoko-mall.onrender.com";
-
-const api = axios.create({
-  baseURL: `${API_URL}/api`,
-  withCredentials: true,
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
+// 🛒 Product endpoints
 export const getProducts = () => api.get("/products");
+
+// 🧾 Cart endpoints
 export const getCart = () => api.get("/cart");
+
+// 🔑 Auth endpoints
 export const login = (data) => api.post("/auth/login", data);
+
+// 🧍 Profile example (optional)
+export const getProfile = () => api.get("/auth/profile");
+
+// 📦 Example order API
+export const createOrder = (data) => api.post("/orders", data);
 
 export default api;
