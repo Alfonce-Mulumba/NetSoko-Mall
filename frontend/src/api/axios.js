@@ -1,8 +1,7 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: BASE_URL,
-  withCredentials: true,
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "https://netsoko-mall.onrender.com/api",
 });
 
 api.interceptors.request.use((config) => {
