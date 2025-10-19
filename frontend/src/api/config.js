@@ -1,18 +1,20 @@
-// config.js
-export const BASE_URL = "https://netsoko-mall.onrender.com/api";
-
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: BASE_URL,
+const API_URL = import.meta.env.VITE_API_URL;
+
+const api = axios.create({
+  baseURL: `${API_URL}/api`,
   withCredentials: true,
 });
 
-// Optional: add auth headers and interceptors if needed
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
 
-export default API;
+// Example endpoints
+export const getProducts = () => api.get("/products");
+export const getCart = () => api.get("/cart");
+export const login = (data) => api.post("/auth/login", data);
+
+export default {
+  getProducts,
+  getCart,
+  login,
+};
