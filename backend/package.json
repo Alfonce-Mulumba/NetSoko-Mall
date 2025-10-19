@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "postinstall": "chmod +x ./node_modules/.bin/*",
+    "postinstall": "chmod +x ./node_modules/.bin/* && npx prisma generate",
     "build": "echo 'Skipping Prisma generate on Render'",
     "start": "npm run build && node src/server.js",
     "dev": "nodemon src/server.js"
