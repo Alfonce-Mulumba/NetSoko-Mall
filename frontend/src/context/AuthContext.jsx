@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { publicApi } from "../api/index.js";
+import api from "../api/axios.js";
 
 export const AuthContext = createContext();
 
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     setLoading(true);
     try {
-      const res = await publicApi.register(formData);
+      const res = await api.register(formData);
       const { user: u, token } = res.data;
       saveAuth(u, token);
       setLoading(false);
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const res = await publicApi.login({ email, password });
+      const res = await api.login({ email, password });
       const { user: u, token } = res.data;
       saveAuth(u, token);
       setLoading(false);
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     const fetchProfile = async () => {
       if (token && !user) {
         try {
-          const res = await publicApi.get("/auth/profile");
+          const res = await api.get("/auth/profile");
           setUser(res.data);
         } catch (err) {
           logout();
