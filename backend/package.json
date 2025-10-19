@@ -2,13 +2,11 @@
   "name": "net-soko-backend",
   "version": "1.0.0",
   "description": "Net-Soko Marketplace Backend",
-  "main": "backend/src/server.js",
+  "main": "src/server.js",
   "type": "module",
-  "engines": {
-    "node": "22.x"
-  },
   "scripts": {
     "postinstall": "npx prisma generate",
+    "build": "echo 'build step skipped (handled by Render)'",
     "start": "npx prisma migrate deploy && node backend/src/server.js"
   },
   "dependencies": {
@@ -31,14 +29,17 @@
     "pino": "^9.11.0",
     "pino-multi-stream": "^3.1.2",
     "pino-pretty": "^13.1.1",
-    "prisma": "^6.16.3",
     "react-toastify": "^11.0.5",
     "streamifier": "^0.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "prisma": "^6.16.3"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
