@@ -2,14 +2,15 @@
   "name": "net-soko-backend",
   "version": "1.0.0",
   "description": "Net-Soko Marketplace Backend",
-  "main": "src/server.js",
+  "main": "backend/src/server.js",
   "type": "module",
-"scripts": {
-  "postinstall": "npx prisma generate",
-  "build": "echo 'build step skipped (handled by Render)'",
-  "start": "npx prisma migrate deploy && node backend/src/server.js"
-},
-
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "postinstall": "npx prisma generate",
+    "start": "npx prisma migrate deploy && node backend/src/server.js"
+  },
   "dependencies": {
     "@prisma/client": "^6.16.3",
     "bcryptjs": "^2.4.3",
