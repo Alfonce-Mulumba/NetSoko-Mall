@@ -4,12 +4,12 @@
   "description": "Net-Soko Marketplace Backend",
   "main": "src/server.js",
   "type": "module",
-  "scripts": {
-    "postinstall": "chmod +x ./node_modules/.bin/* && npx prisma generate",
-    "build": "echo 'Skipping Prisma generate on Render'",
-    "start": "npm run build && node src/server.js",
-    "dev": "nodemon src/server.js"
-  },
+"scripts": {
+  "postinstall": "npx prisma generate",
+  "build": "echo 'build step skipped (handled by Render)'",
+  "start": "npx prisma migrate deploy && node backend/src/server.js"
+},
+
   "dependencies": {
     "@prisma/client": "^6.16.3",
     "bcryptjs": "^2.4.3",
