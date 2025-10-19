@@ -30,7 +30,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(helmet());
 app.use(express.json({ limit: "200kb" }));
 app.use(express.urlencoded({ extended: true, limit: "200kb" }));
-app.use(cors());
+const allowedOrigins = [
+  "https://netsoko-mall-1.onrender.com", // ✅ your frontend on Render
+  "http://localhost:5173",              // ✅ for local dev testing
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(generalLimiter);
 
 // ✅ Routes
