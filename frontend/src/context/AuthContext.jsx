@@ -1,81 +1,74 @@
-import React, { createContext, useState, useEffect } from "react";
-import api from "../api/index.js";
-import { useNavigate } from "react-router-dom";
+import { createContext, useState, useEffect } from "react";
+import { publicApi } from "../api/index.js";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const nav = useNavigate();
-
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("user") || "null");
-    } catch {
-      localStorage.removeItem("user");
-      return null;
-    }
-  });
-
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [loading, setLoading] = useState(false);
 
-  // ✅ Prevent unnecessary re-navigation loops
-  useEffect(() => {
-    if (token && !user) {
-      try {
-        const usr = JSON.parse(localStorage.getItem("user") || "null");
-        setUser(usr);
-      } catch {
-        localStorage.removeItem("user");
-      }
+  // Save user/token in localStorage
+  const saveAuth = (userData, token) => {
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", token);
+    setUser(userData);
+    setToken(token);
+  };
+
+  const register = async (formData) => {
+    setLoading(true);
+    try {
+      const res = await publicApi.register(formData);
+      const { user: u, token } = res.data;
+      saveAuth(u, token);
+      setLoading(false);
+      return { user: u };
+    } catch (err) {
+      setLoading(false);
+      throw err;
     }
-  }, [token]);
+  };
 
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const res = await api.login({ email, password });
-      const { token: t, user: u } = res.data;
-
-      localStorage.setItem("token", t);
-      localStorage.setItem("user", JSON.stringify(u));
-      setToken(t);
-      setUser(u);
-      return res.data;
-    } catch (err) {
-      throw err;
-    } finally {
+      const res = await publicApi.login({ email, password });
+      const { user: u, token } = res.data;
+      saveAuth(u, token);
       setLoading(false);
+      return { user: u };
+    } catch (err) {
+      setLoading(false);
+      throw err;
     }
   };
 
   const logout = () => {
-    // ✅ Clean up first before navigating
-    localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setToken(null);
+    localStorage.removeItem("token");
     setUser(null);
-
-    // ✅ Use replace to avoid stacking history and looping
-    nav("/login", { replace: true });
+    setToken(null);
+    window.location.replace("/login");
   };
 
-  const register = async (payload) => {
-    setLoading(true);
-    try {
-      const res = await api.register(payload);
-      return res.data;
-    } catch (err) {
-      throw new Error(err?.response?.data?.message || "Registration failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    // Optional: fetch profile on load if token exists
+    const fetchProfile = async () => {
+      if (token && !user) {
+        try {
+          const res = await publicApi.get("/auth/profile");
+          setUser(res.data);
+        } catch (err) {
+          logout();
+        }
+      }
+    };
+    fetchProfile();
+  }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ user, token, loading, login, logout, register, setToken, setUser }}
-    >
+    <AuthContext.Provider value={{ user, token, loading, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
