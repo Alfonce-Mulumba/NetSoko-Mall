@@ -11,7 +11,6 @@ import { prisma } from "./config/db.js";
 import logger from "./utils/logger.js";
 import { authLimiter, generalLimiter } from "./middleware/rateLimiter.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
-
 // ✅ Import routes
 import uploadRoutes from "./routes/uploadRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
@@ -31,22 +30,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(helmet());
 app.use(express.json({ limit: "200kb" }));
 app.use(express.urlencoded({ extended: true, limit: "200kb" }));
-
-// ✅ CORS setup (optional if frontend and backend on same domain)
 app.use(cors());
-
-// ✅ Rate limiting
 app.use(generalLimiter);
-
-// ✅ Connect Prisma
-(async () => {
-  try {
-    await prisma.$connect();
-    logger.info("✅ Connected to PostgreSQL via Prisma");
-  } catch (err) {
-    logger.error({ msg: "DB Connection Error", error: err.message });
-  }
-})();
 
 // ✅ Routes
 app.use("/api/auth", authLimiter, authRoutes);
@@ -54,7 +39,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/products", productRoutes); // ✅ Correct
+app.use("/api/products", productRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/addresses", deliveryRoutes);
@@ -71,6 +56,21 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
-);
+
+// ✅ Start server after connecting Prisma
+async function startServer() {
+  try {
+    console.log("Connecting to Prisma...");
+    await prisma.$connect();
+    console.log("✅ Connected to PostgreSQL via Prisma");
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error("❌ Failed to start server:", err);
+    process.exit(1); // Render will still exit, but you'll see the error
+  }
+}
+
+startServer();
