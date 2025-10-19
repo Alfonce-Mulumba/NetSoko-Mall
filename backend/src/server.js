@@ -60,19 +60,16 @@ const PORT = process.env.PORT || 5000;
 // ✅ Start server after connecting Prisma
 async function startServer() {
   try {
+    console.log("Connecting to Prisma...");
     await prisma.$connect();
-    logger.info("✅ Connected to PostgreSQL via Prisma");
-    console.log("Cloudinary ENV:", {
-      cloud_name: process.env.CLOUD_NAME,
-      api_key: process.env.CLOUD_API_KEY,
-      api_secret: process.env.CLOUD_API_SECRET ? "✔️ set" : "❌ missing",
+    console.log("✅ Connected to PostgreSQL via Prisma");
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
-    app.listen(PORT, () =>
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-    );
   } catch (err) {
-    logger.error({ msg: "Failed to start server", error: err.message });
-    process.exit(1);
+    console.error("❌ Failed to start server:", err);
+    process.exit(1); // Render will still exit, but you'll see the error
   }
 }
 
