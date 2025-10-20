@@ -1,37 +1,54 @@
-// src/api/index.js
-import axiosInstance from "./axios";
+import api from "./axios";
 
-// ✅ AUTH
-const login = (data) => axiosInstance.post("/auth/login", data);
-const register = (data) => axiosInstance.post("/auth/register", data);
+// ✅ Auth
+export const register = (data) => api.post("/auth/register", data);
+export const login = (data) => api.post("/auth/login", data);
+export const getProfile = () => api.get("/auth/profile");
 
-// ✅ PRODUCTS
-const getProducts = (params = {}) => axiosInstance.get("/products", { params });
-const searchProducts = (params = {}) =>
-  axiosInstance.get("/products/search", { params });
-const getProductById = (id) => axiosInstance.get(`/products/${id}`);
+// ✅ Products
+export const getProducts = () => api.get("/products");
+export const getProductById = (id) => api.get(`/products/${id}`);
+export const createProduct = (data) => api.post("/products", data);
 
-// ✅ CART
-const getCart = () => axiosInstance.get("/cart");
-const addToCart = (data) => axiosInstance.post("/cart", data);
-const removeFromCart = (id) => axiosInstance.delete(`/cart/${id}`);
+// ✅ Cart
+export const getCart = () => api.get("/cart");
+export const addToCart = (data) => api.post("/cart", data);
+export const removeFromCart = (id) => api.delete(`/cart/${id}`);
 
-// ✅ ORDERS
-const createOrder = (data) => axiosInstance.post("/orders", data);
-const getOrders = () => axiosInstance.get("/orders");
+// ✅ Orders
+export const getOrders = () => api.get("/orders");
+export const createOrder = (data) => api.post("/orders", data);
 
-// ✅ EXPORT all
-const api = {
-  login,
+// ✅ Payments
+export const makePayment = (data) => api.post("/payments", data);
+
+// ✅ Admin
+export const getAdminDashboard = () => api.get("/admin/dashboard");
+
+// ✅ Complaints
+export const getComplaints = () => api.get("/complaints");
+export const submitComplaint = (data) => api.post("/complaints", data);
+
+// ✅ Delivery / Address
+export const getAddresses = () => api.get("/addresses");
+export const addAddress = (data) => api.post("/addresses", data);
+
+export default {
   register,
+  login,
+  getProfile,
   getProducts,
-  searchProducts,
   getProductById,
+  createProduct,
   getCart,
   addToCart,
   removeFromCart,
-  createOrder,
   getOrders,
+  createOrder,
+  makePayment,
+  getAdminDashboard,
+  getComplaints,
+  submitComplaint,
+  getAddresses,
+  addAddress,
 };
-
-export default api;
