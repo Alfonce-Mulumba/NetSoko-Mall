@@ -1,19 +1,16 @@
 // src/api/axios.js
 import axios from "axios";
-import config from "./config";
+import API_BASE_URL from "./config";
 
-const api = axios.create({
-  baseURL: config.BASE_URL,
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
-// ✅ Attach token to every request if available
-api.interceptors.request.use((req) => {
+axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-  return req;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
-export default api;
+export default axiosInstance;

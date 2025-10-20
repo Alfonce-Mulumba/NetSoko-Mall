@@ -1,7 +1,5 @@
 // src/api/config.js
-const API_URL =
-  import.meta.env.VITE_API_URL || "https://netsoko-mall.onrender.com";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "https://netsoko-mall.onrender.com/api";
 
-export default {
-  BASE_URL: `${API_URL}/api`,
-};
+export default API_BASE_URL;

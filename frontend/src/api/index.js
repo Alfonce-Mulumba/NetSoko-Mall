@@ -1,19 +1,37 @@
 // src/api/index.js
-import api from "./axios";
+import axiosInstance from "./axios";
 
-// 🛒 Product endpoints
-export const getProducts = () => api.get("/products");
+// ✅ AUTH
+const login = (data) => axiosInstance.post("/auth/login", data);
+const register = (data) => axiosInstance.post("/auth/register", data);
 
-// 🧾 Cart endpoints
-export const getCart = () => api.get("/cart");
+// ✅ PRODUCTS
+const getProducts = (params = {}) => axiosInstance.get("/products", { params });
+const searchProducts = (params = {}) =>
+  axiosInstance.get("/products/search", { params });
+const getProductById = (id) => axiosInstance.get(`/products/${id}`);
 
-// 🔑 Auth endpoints
-export const login = (data) => api.post("/auth/login", data);
+// ✅ CART
+const getCart = () => axiosInstance.get("/cart");
+const addToCart = (data) => axiosInstance.post("/cart", data);
+const removeFromCart = (id) => axiosInstance.delete(`/cart/${id}`);
 
-// 🧍 Profile example (optional)
-export const getProfile = () => api.get("/auth/profile");
+// ✅ ORDERS
+const createOrder = (data) => axiosInstance.post("/orders", data);
+const getOrders = () => axiosInstance.get("/orders");
 
-// 📦 Example order API
-export const createOrder = (data) => api.post("/orders", data);
+// ✅ EXPORT all
+const api = {
+  login,
+  register,
+  getProducts,
+  searchProducts,
+  getProductById,
+  getCart,
+  addToCart,
+  removeFromCart,
+  createOrder,
+  getOrders,
+};
 
 export default api;
