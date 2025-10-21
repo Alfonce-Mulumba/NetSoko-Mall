@@ -5,8 +5,9 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "build": "npx prisma generate",
-    "postinstall": "npx prisma generate",
+    "prebuild": "chmod +x ./node_modules/.bin/prisma || true",
+    "build": "npm run prebuild && npx prisma generate",
+    "postinstall": "npm run prebuild && npx prisma generate",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
