@@ -4,15 +4,12 @@
   "description": "Net-Soko Marketplace Backend",
   "main": "src/server.js",
   "type": "module",
-"scripts": {
-  "prepare": "chmod +x ./node_modules/.bin/prisma",
-  "build": "npm run prepare && rm -rf node_modules/.prisma && rm -rf node_modules/@prisma/engines && npx prisma generate",
-  "start": "node server.js"
-
-},
+  "scripts": {
+    "build": "npx prisma generate",
+     "start": "node src/server.js"
+  },
   "dependencies": {
-    "@prisma/client": "^6.16.3",
-    "prisma": "^6.17.1",
+    "@prisma/client": "^6.17.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
@@ -35,7 +32,8 @@
     "streamifier": "^0.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "prisma": "^6.17.1"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
