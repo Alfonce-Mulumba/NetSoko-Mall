@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf prisma/generated",
+    "prebuild": "chmod +x ./node_modules/.bin/prisma || true",
     "build": "npx prisma generate",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
