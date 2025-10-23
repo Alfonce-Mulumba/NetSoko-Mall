@@ -20,6 +20,8 @@ logs
 !.env.example
 
 # Prisma
+# Keep the schema and migrations in git!
+# Only ignore generated client or temp DBs
 prisma/generated/
 prisma/dev.db
 prisma/dev.db-journal
