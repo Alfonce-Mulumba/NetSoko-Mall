@@ -1,5 +1,7 @@
 import axios from "axios";
-import API_BASE_URL from "./config";
+import API_BASE_URL from "./config.js";
+
+console.log("🌐 API Base URL:", API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,7 +13,7 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = 'Bearer ${token}';
   }
-  return config;
+  return config
 });
 
 export default api;
