@@ -21,6 +21,8 @@ export const registerUser = async (req, res) => {
     const user = await prisma.user.create({
       data: { name, email, phone, password: hashedPassword },
     });
+    await sendVerificationEmail(user.email, code);
+    res.status(201).json({message: "Verification email sent"})
 
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "30d" });
 

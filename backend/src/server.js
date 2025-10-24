@@ -24,6 +24,7 @@ import complaintRoutes from "./routes/complaintRoutes.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
 
 const app = express();
+app.set("trust proxy", 1);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ✅ Basic middleware
