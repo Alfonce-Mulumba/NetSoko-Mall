@@ -1,9 +1,8 @@
 import { prisma, JWT_SECRET } from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {sendMail} from "../utils/email.js";
+import { sendMail } from "../utils/email.js";
 
-// REGISTER USER
 export const registerUser = async (req, res) => {
   const { name, email, phone, password } = req.body;
 
@@ -12,25 +11,41 @@ export const registerUser = async (req, res) => {
   }
 
   try {
+    // ✅ Check for existing user
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-      data: { name, email, phone, password: hashedPassword },
-    });
-    await sendMail(user.email, code);
-    res.status(201).json({message: "Verification email sent"})
+    // ✅ Generate verification code
+    const code = Math.floor(100000 + Math.random() * 900000);
+    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 min expiry
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "30d" });
+    // ✅ Create user (not verified yet)
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        phone,
+        password: hashedPassword,
+        verification_code: code,
+        verification_expires: expires,
+      },
+    });
+
+    // ✅ Send verification email
+    await sendMail(
+      user.email,
+      `Your NetSoko verification code is: ${code}`
+    );
 
     res.status(201).json({
-      user: { id: user.id, name: user.name, email: user.email, phone: user.phone },
-      token,
+      message: "Verification email sent. Please check your inbox.",
     });
+
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ message: "Server error registering user" });
