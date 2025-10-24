@@ -4,23 +4,23 @@ import api from "../api/index.js";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-      try{
-          const stored = localStorage.getItem("user');" +
-              "return stored ? JSON.parse(stored) : null;"
-      }catch (err) {
-          console.warn("Failed to parse user from localStorage",
-              err);
-          return null;
-      }
-  });
-  const [token, setToken] = useState(() => {
-      try {
-          return localStorage.getItem("token");
-      }catch (err) {
-          return null;
-      }
-  });
+const [user, setUser] = useState(() => {
+  try {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  } catch (err) {
+    console.warn("Failed to parse user from localStorage", err);
+    return null;
+  }
+});
+
+const [token, setToken] = useState(() => {
+  try {
+    return localStorage.getItem("token");
+  } catch (err) {
+    return null;
+  }
+});
 
   const [loading, setLoading] = useState(false);
 
