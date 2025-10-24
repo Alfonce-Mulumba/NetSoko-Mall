@@ -20,10 +20,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await api.register(formData);
-      const { user: u, token } = res.data;
-      saveAuth(u, token);
+      const user= res.data.user;
       setLoading(false);
-      return { user: u };
+      return { user };
     } catch (err) {
       setLoading(false);
       throw err;

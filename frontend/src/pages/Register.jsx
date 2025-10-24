@@ -11,7 +11,8 @@ export default function RegisterPage() {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      const res = await register(form);
+      const { user } = await register(form);
+      alert("Regitration successful. Check your email for verification code!");
       nav("/verify", { state: { email: form.email } });
     } catch (err) {
       alert(err?.response?.data?.message || "Error registering");
