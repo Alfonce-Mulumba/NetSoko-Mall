@@ -12,7 +12,6 @@ api.interceptors.request.use((config) => {
   try {
     const token = localStorage.getItem("token");
     if (token) {
-      // <-- use backticks so token is interpolated
       config.headers.Authorization = `Bearer ${token}`;
     }
   } catch (e) {
