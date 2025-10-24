@@ -37,7 +37,7 @@ function PrivateRoute({ children, role }) {
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const token = localStorage.getItem("token");
   if (!token) return <Navigate to="/login" />;
-  if (role && user?.role !== role) return <Navigate to="/" />;
+  if (role && user?.role?.toLowerCase() !== role.toLowerCase()) return <Navigate to="/" />;
   return children;
 }
 
