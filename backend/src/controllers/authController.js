@@ -11,7 +11,7 @@ export const registerUser = async (req, res) => {
   }
 
   try {
-    // ✅ Check for existing user
+    // ✅ Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
@@ -36,14 +36,24 @@ export const registerUser = async (req, res) => {
       },
     });
 
-    // ✅ Send verification email
-    await sendMail(
-      user.email,
-      `Your NetSoko verification code is: ${code}`
-    );
+    // ✅ Try sending verification email but handle failure gracefully
+    try {
+      await sendMail(
+        user.email,
+        `Your NetSoko verification code is: ${code}`
+      );
+    } catch (emailErr) {
+      console.error("Email send failed:", emailErr);
+      return res.status(500).json({
+        message: "User registered, but verification email failed to send",
+        user: { id: user.id, name: user.name, email: user.email },
+      });
+    }
 
+    // ✅ Success response
     res.status(201).json({
       message: "Verification email sent. Please check your inbox.",
+      user: { id: user.id, name: user.name, email: user.email },
     });
 
   } catch (err) {
