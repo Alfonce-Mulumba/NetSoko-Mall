@@ -1,6 +1,7 @@
 import { prisma, JWT_SECRET } from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {sendMail} from "../utils/email.js";
 
 // REGISTER USER
 export const registerUser = async (req, res) => {
@@ -21,7 +22,7 @@ export const registerUser = async (req, res) => {
     const user = await prisma.user.create({
       data: { name, email, phone, password: hashedPassword },
     });
-    await sendVerificationEmail(user.email, code);
+    await sendMail(user.email, code);
     res.status(201).json({message: "Verification email sent"})
 
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "30d" });
