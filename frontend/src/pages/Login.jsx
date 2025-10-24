@@ -11,15 +11,20 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const nav = useNavigate();
 
-  const submit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // ✅ Prevent page reload (fixes GET issue)
     try {
-      const res = await login(email, password);
-      if (res?.user) {
-        // ✅ Ensure navigation happens once after successful login
+      // ✅ Ensure we're calling the AuthContext function correctly
+      const res = await login({ email, password });
+
+      if (res?.user || res?.data?.user) {
+        // navigate only if backend returned a valid user
         nav("/");
+      } else {
+        alert("Invalid email or password");
       }
     } catch (err) {
+      console.error("Login failed:", err);
       alert(err?.response?.data?.message || "Error logging in");
     }
   };
@@ -51,7 +56,7 @@ export default function LoginPage() {
         </p>
 
         {/* Form */}
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             value={email}
