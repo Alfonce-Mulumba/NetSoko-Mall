@@ -14,11 +14,10 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault(); // ✅ Prevent page reload (fixes GET issue)
     try {
-      // ✅ Ensure we're calling the AuthContext function correctly
-      const res = await login({ email, password });
+      // call login with two args to match AuthContext
+      const res = await login(email, password);
 
       if (res?.user || res?.data?.user) {
-        // navigate only if backend returned a valid user
         nav("/");
       } else {
         alert("Invalid email or password");

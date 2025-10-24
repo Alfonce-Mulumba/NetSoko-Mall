@@ -9,11 +9,17 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = 'Bearer ${token}';
+  try {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // <-- use backticks so token is interpolated
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    // don't crash if localStorage access fails
+    console.warn("Axios interceptor error:", e);
   }
-  return config
-});
+  return config;
+}, (err) => Promise.reject(err));
 
 export default api;
