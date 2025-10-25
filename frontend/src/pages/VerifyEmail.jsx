@@ -4,19 +4,19 @@ import api from "../api/index.js";
 import logoBlack from "../assets/logoBlack.jpg";
 
 export default function VerifyEmail() {
-  const { state } = useLocation();
-  const email = state?.email || "";
+  const { state, search } = useLocation();
+  const query = new URLSearchParams(search);
+  const email = state?.email || query.get("email") || "";
   const nav = useNavigate();
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(query.get("code") || "");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // ✅ Updated verify function to POST { email, code } to backend
   const verify = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post("/auth/verify", { email, code }); // <- POST request
+      const res = await api.verify({ email, code });
       setMessage("✅ Verified! You can now log in.");
       setTimeout(() => nav("/login"), 1500);
     } catch (err) {
@@ -26,10 +26,9 @@ export default function VerifyEmail() {
     }
   };
 
-  // ✅ Updated resend function to match backend route
   const resendCode = async () => {
     try {
-      await api.post("/auth/resend-otp", { email }); // <- POST request matching backend route
+      await api.resend({ email });
       setMessage("📨 A new code has been sent to your email.");
     } catch (err) {
       setMessage(err?.response?.data?.message || "❌ Failed to resend code");
