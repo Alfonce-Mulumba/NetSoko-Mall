@@ -11,10 +11,13 @@ export const sendMail = async (email, verificationCode) => {
       subject: "Verify Your Email",
       html: `
         <h2>Verify Your Email</h2>
-        <p>Verification code sent to <strong>${email}</strong></p>
-        <a href="${frontendURL}/verify?code=${verificationCode}">Verify Email</a>
+        <p>Hi,</p>
+        <p>Your verification code is: <strong>${verificationCode}</strong></p>
+        <p>Use the code to verify your NetSoko account or click the link below</p>
         <br/>
-        <a href="${frontendURL}/resend">Resend code</a>
+        <a href="${frontendURL}/verify-email?code=${verificationCode}" target="_blank">Verify Email</a>
+        <a href="${frontendURL}/resend" >Resend code</a>
+        <p>Thanks, <br/>NetSoko Team</p>
       `,
     };
 
