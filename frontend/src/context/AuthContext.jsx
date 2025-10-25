@@ -36,7 +36,7 @@ const [token, setToken] = useState(() => {
     setLoading(true);
     try {
       const res = await api.register(formData);
-      const user= res.data.user;
+      const user = res.data.user;
       setLoading(false);
       return { user };
     } catch (err) {

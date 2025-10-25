@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import api from "../../../utils/api";
+import api from "../../../utils/api.js";
 import logoBlack from "../../../assets/logoBlack.jpg";
 
 export default function VerifyModal({ open, setOpen, email, onCloseParent }) {
