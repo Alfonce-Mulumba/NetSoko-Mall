@@ -66,13 +66,13 @@ export const verifyUser = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (String(user.verificationCode) !== String(code)) {
+    if (String(user.verification_code) !== String(code)) {
       return res.status(400).json({ message: "Invalid verification code" });
     }
 
     await prisma.user.update({
       where: { email },
-      data: { is_Verified: true, verificationCode: null },
+      data: { is_Verified: true, verification_code: null },
     });
 
     return res.json({ message: "✅ Email verified successfully" });
@@ -94,7 +94,7 @@ export const resendOtp = async (req, res) => {
 
     await prisma.user.update({
       where: { email },
-      data: { verificationCode: newCode },
+      data: { verification_code: newCode },
     });
 
     await sendMail(email, newCode);
