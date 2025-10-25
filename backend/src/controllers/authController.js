@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
         password: hashedPassword,
         verification_code: code,
         verification_expires: expires,
-        verified: false,
+        is_verified: false,
       },
     });
 
@@ -77,7 +77,7 @@ export const verifyUser = async (req, res) => {
     await prisma.user.update({
       where: { email },
       data: {
-        verified: true,
+        is_verified: true,
         verification_code: null,
         verification_expires: null,
       },
