@@ -68,7 +68,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// ✅ Start server after connecting Prisma
+// ✅ Start the server after connecting Prisma
 async function startServer() {
   try {
     console.log("Connecting to Prisma...");

@@ -65,9 +65,12 @@ export const verifyUser = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     if (user.is_verified) return res.status(400).json({ message: "User already verified" });
 
-    if (user.verification_code !== parseInt(code)) {
+    if (user.verification_code !== code) {
       return res.status(400).json({ message: "Invalid verification code" });
     }
+user.is_verified = true;
+    await user.save();
+    res.json({ message: "Account verified successfully" });
 
     if (new Date() > user.verification_expires) {
       return res.status(400).json({ message: "Verification code expired" });
