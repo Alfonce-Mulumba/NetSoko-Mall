@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendMail } from "../utils/email.js";
 
+
 export const registerUser = async (req, res) => {
   const { name, email, phone, password } = req.body;
 
@@ -56,75 +57,51 @@ export const registerUser = async (req, res) => {
 };
 
 export const verifyUser = async (req, res) => {
-  const { email, code } = req.body;
-
-  if (!email || !code) return res.status(400).json({ message: "Email and code required" });
-
   try {
+    const { email, code } = req.body;
+
+    if (!email || !code)
+      return res.status(400).json({ message: "Email and code are required" });
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
-    if (user.is_verified) return res.status(400).json({ message: "User already verified" });
 
-    if (user.verification_code !== code) {
+    if (String(user.verificationCode) !== String(code)) {
       return res.status(400).json({ message: "Invalid verification code" });
     }
-user.is_verified = true;
-    await user.save();
-    res.json({ message: "Account verified successfully" });
 
-    if (new Date() > user.verification_expires) {
-      return res.status(400).json({ message: "Verification code expired" });
-    }
-
-    // Update user as verified
     await prisma.user.update({
       where: { email },
-      data: {
-        is_verified: true,
-        verification_code: null,
-        verification_expires: null,
-      },
+      data: { is_Verified: true, verificationCode: null },
     });
 
-    return res.json({ message: "Account verified successfully" });
+    return res.json({ message: "✅ Email verified successfully" });
   } catch (err) {
-    console.error("Verify error:", err);
-    return res.status(500).json({ message: "Server error verifying account" });
+    console.error("verifyUser error:", err);
+    res.status(500).json({ message: "Server error during verification" });
   }
 };
 
 export const resendOtp = async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: "Email is required" });
-
   try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
-    if (user.is_verified) return res.status(400).json({ message: "User already verified" });
 
-    // Generate new code
-    const code = Math.floor(100000 + Math.random() * 900000);
-    const expires = new Date(Date.now() + 15 * 60 * 1000);
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     await prisma.user.update({
       where: { email },
-      data: {
-        verification_code: code,
-        verification_expires: expires,
-      },
+      data: { verificationCode: newCode },
     });
 
-    try {
-      await sendMail(email, `Your new verification code is: ${code}`);
-    } catch (emailErr) {
-      console.error("Email send failed:", emailErr);
-      return res.status(500).json({ message: "Failed to send verification email" });
-    }
-
-    res.json({ message: "📨 A new verification code has been sent to your email." });
+    await sendMail(email, newCode);
+    res.json({ message: "📨 A new verification code has been sent" });
   } catch (err) {
-    console.error("Resend OTP error:", err);
-    res.status(500).json({ message: "Server error resending OTP" });
+    console.error("resendOtp error:", err);
+    res.status(500).json({ message: "Server error during resend" });
   }
 };
 // LOGIN USER
