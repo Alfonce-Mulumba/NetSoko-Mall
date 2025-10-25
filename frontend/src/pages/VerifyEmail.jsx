@@ -11,11 +11,12 @@ export default function VerifyEmail() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  // ✅ Updated verify function to POST { email, code } to backend
   const verify = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.verify({ email, code });
+      const res = await api.post("/auth/verify", { email, code }); // <- POST request
       setMessage("✅ Verified! You can now log in.");
       setTimeout(() => nav("/login"), 1500);
     } catch (err) {
@@ -25,9 +26,10 @@ export default function VerifyEmail() {
     }
   };
 
+  // ✅ Updated resend function to match backend route
   const resendCode = async () => {
     try {
-      await api.resend({ email });
+      await api.post("/auth/resend-otp", { email }); // <- POST request matching backend route
       setMessage("📨 A new code has been sent to your email.");
     } catch (err) {
       setMessage(err?.response?.data?.message || "❌ Failed to resend code");
@@ -65,8 +67,8 @@ export default function VerifyEmail() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="Enter verification code"
-            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 
-                       border-gray-300 dark:border-gray-600 
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700
+                       border-gray-300 dark:border-gray-600
                        text-gray-900 dark:text-gray-100"
           />
           <button

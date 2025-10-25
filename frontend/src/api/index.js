@@ -3,7 +3,7 @@ import api from "./axios.js";
 // ✅ Auth
 export const register = (data) => api.post("/auth/register", data);
 export const verify = (token) => api.get(`/auth/verify/${token}`);
-export const resend = (email) => api.post("/auth/resend", { email });
+export const resend = (email) => api.post("/auth/resend-otp", { email });
 export const forgot = (data) => api.post("/auth/forgot", data);
 export const login = (data) => api.post("/auth/login", data);
 export const getProfile = () => api.get("/auth/profile");
