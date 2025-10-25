@@ -63,7 +63,7 @@ export const verifyUser = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
-    if (user.verified) return res.status(400).json({ message: "User already verified" });
+    if (user.is_verified) return res.status(400).json({ message: "User already verified" });
 
     if (user.verification_code !== parseInt(code)) {
       return res.status(400).json({ message: "Invalid verification code" });
@@ -90,6 +90,40 @@ export const verifyUser = async (req, res) => {
   }
 };
 
+export const resendOtp = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.is_verified) return res.status(400).json({ message: "User already verified" });
+
+    // Generate new code
+    const code = Math.floor(100000 + Math.random() * 900000);
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        verification_code: code,
+        verification_expires: expires,
+      },
+    });
+
+    try {
+      await sendMail(email, `Your new verification code is: ${code}`);
+    } catch (emailErr) {
+      console.error("Email send failed:", emailErr);
+      return res.status(500).json({ message: "Failed to send verification email" });
+    }
+
+    res.json({ message: "📨 A new verification code has been sent to your email." });
+  } catch (err) {
+    console.error("Resend OTP error:", err);
+    res.status(500).json({ message: "Server error resending OTP" });
+  }
+};
 // LOGIN USER
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
