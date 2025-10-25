@@ -1,7 +1,7 @@
 import sgMail from "@sendgrid/mail";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-export const sendVerificationEmail = async (email, verificationCode) => {
+export const sendMail = async (email, verificationCode) => {
   try {
     const frontendURL = process.env.FRONTEND_URL || "https://netsoko-mall-1.onrender.com";
 
