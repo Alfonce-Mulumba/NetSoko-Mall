@@ -11,20 +11,15 @@ export const registerUser = async (req, res) => {
   }
 
   try {
-    // ✅ Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // ✅ Generate verification code
     const code = Math.floor(100000 + Math.random() * 900000);
-    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 min expiry
+    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
 
-    // ✅ Create user (not verified yet)
     const user = await prisma.user.create({
       data: {
         name,
@@ -33,10 +28,10 @@ export const registerUser = async (req, res) => {
         password: hashedPassword,
         verification_code: code,
         verification_expires: expires,
+        verified: false,
       },
     });
 
-    // ✅ Try sending verification email but handle failure gracefully
     try {
       await sendMail(
         user.email,
@@ -50,15 +45,48 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // ✅ Success response
-    res.status(201).json({
+    return res.status(201).json({
       message: "Verification email sent. Please check your inbox.",
       user: { id: user.id, name: user.name, email: user.email },
     });
-
   } catch (err) {
     console.error("Register error:", err);
-    res.status(500).json({ message: "Server error registering user" });
+    return res.status(500).json({ message: "Server error registering user" });
+  }
+};
+
+export const verifyUser = async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) return res.status(400).json({ message: "Email and code required" });
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.verified) return res.status(400).json({ message: "User already verified" });
+
+    if (user.verification_code !== parseInt(code)) {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
+
+    if (new Date() > user.verification_expires) {
+      return res.status(400).json({ message: "Verification code expired" });
+    }
+
+    // Update user as verified
+    await prisma.user.update({
+      where: { email },
+      data: {
+        verified: true,
+        verification_code: null,
+        verification_expires: null,
+      },
+    });
+
+    return res.json({ message: "Account verified successfully" });
+  } catch (err) {
+    console.error("Verify error:", err);
+    return res.status(500).json({ message: "Server error verifying account" });
   }
 };
 
