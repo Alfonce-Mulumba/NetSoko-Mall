@@ -11,7 +11,7 @@ export const getProfile = () => api.get("/auth/profile");
 // ✅ Products
 export const getProducts = () => api.get("/products");
 export const getProductById = (id) => api.get(`/products/${id}`);
-export const createProduct = (data) => api.post("/products", data);
+
 
 // ✅ Cart
 export const getCart = () => api.get("/cart");
@@ -27,6 +27,25 @@ export const makePayment = (data) => api.post("/payments", data);
 
 // ✅ Admin
 export const getAdminDashboard = () => api.get("/admin/dashboard");
+export const  adminCreateProduct = (data) => api.post("/admin/products", data);
+export const  adminUpdateProduct = (id, data) => api.put(`/admin/products/${id}`, data);
+export const  adminDeleteProduct = (id) => api.delete(`/admin/products/${id}`);
+export const  adminGetProducts = () => api.get("/admin/products");
+export const  adminGetProductById = (id) => api.get(`/admin/products/${id}`);
+export const adminGetAnalytics = () => api.get("/admin/analytics");
+export const getCategories = () => api.get("/categories");
+export const getSubCategories = (id) => api.get(`/categories/${id}`);
+export const adminGetUsers = () => api.get("/admin/users");
+export const adminGetUserById = (id) => api.get(`/admin/users/${id}`);
+export const adminUpdateUser = (id, data) => api.put(`/admin/users/${id}`, data);
+export const adminDeleteUser = (id) => api.delete(`/admin/users/${id}`);
+export const adminCreateUser = (data) => api.post("/admin/users", data);
+export const adminGetOrders = () => api.get("/admin/orders");
+export const adminGetOrderById = (id) => api.get(`/admin/orders/${id}`);
+export const adminUpdateOrder = (id, data) => api.put(`/admin/orders/${id}`, data);
+export const adminDeleteOrder = (id) => api.delete(`/admin/orders/${id}`);
+export const adminGetComplaints = () => api.get("/admin/complaints");
+export const adminGetComplaintById = (id) => api.get(`/admin/complaints/${id}`);
 
 // ✅ Complaints
 export const getComplaints = () => api.get("/complaints");
@@ -45,7 +64,25 @@ export default {
   getProfile,
   getProducts,
   getProductById,
-  createProduct,
+adminCreateProduct,
+    adminUpdateProduct,
+    adminDeleteProduct,
+    adminGetProducts,
+    adminGetProductById,
+    adminGetAnalytics,
+    getCategories,
+    getSubCategories,
+    adminGetUsers,
+    adminGetUserById,
+    adminUpdateUser,
+    adminDeleteUser,
+    adminCreateUser,
+    adminGetOrders,
+    adminGetOrderById,
+    adminUpdateOrder,
+    adminDeleteOrder,
+    adminGetComplaints,
+    adminGetComplaintById,
   getCart,
   addToCart,
   removeFromCart,
