@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
+"scripts": {
+  "preinstall": "node -e \"process.platform!=='win32' && require('child_process').execSync('chmod +x node_modules/.bin/* || true')\"",
+  "dev": "vite",
+  "build": "node -e \"process.platform!=='win32' && require('child_process').execSync('chmod +x node_modules/.bin/* || true'); require('child_process').execSync('npx vite build', {stdio: 'inherit'})\"",
+  "preview": "vite preview"
+},
+
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.0.18",
