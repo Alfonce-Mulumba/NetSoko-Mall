@@ -33,13 +33,13 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
-  // ✅ FIXED add() method to accept the full object structure expected by backend
-  const add = async (productId, quantity = 1, colorId = null, sizeId = null) => {
+  // ✅ Add to cart
+  const add = async (productId, quantity = 1, colorId = null, sizeId = null, price = null) => {
     setSyncing(true);
     try {
-      const payload = { productId, quantity, colorId, sizeId };
+      const payload = { productId, quantity, colorId, sizeId, price };
       const res = await api.addToCart(payload);
-      await fetchCart(); // Refresh cart
+      await fetchCart();
       return res.data;
     } catch (err) {
       console.error("Add to cart failed:", err);
@@ -49,6 +49,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // ✅ Remove item
   const remove = async (id) => {
     try {
       await api.removeFromCart(id);
@@ -58,10 +59,31 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // ✅ Update quantity (with stock + min limit)
+  const updateQuantity = async (id, newQuantity) => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+
+    const stock = item.product?.stock || 1;
+    if (newQuantity < 1) newQuantity = 1;
+    if (newQuantity > stock) newQuantity = stock;
+
+    try {
+      setSyncing(true);
+      await api.updateCartItem(id, { quantity: newQuantity });
+      await fetchCart();
+    } catch (err) {
+      console.error("Quantity update failed:", err);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const value = {
     items,
     add,
     remove,
+    updateQuantity, // ✅ now fully functional
     fetchCart,
     syncing,
   };

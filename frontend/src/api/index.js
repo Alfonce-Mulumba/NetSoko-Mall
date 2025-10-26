@@ -9,15 +9,23 @@ export const login = (data) => api.post("/auth/login", data);
 export const getProfile = () => api.get("/auth/profile");
 
 // ✅ Products
-export const getProducts = () => api.get("/products");
+
+export const getProducts = (params = {}) =>
+  api.get("/products", { params }); // allows passing { limit, sort }
+
 export const getProductById = (id) => api.get(`/products/${id}`);
 
+// make searchProducts accept an object of params
+export const searchProducts = (params = {}) =>
+  api.get("/products/search", { params });
 
+export const getProductsByCategory = (category) =>
+  api.get(`/products/category/${category}`);
 // ✅ Cart
 export const getCart = () => api.get("/cart");
-export const addToCart = (data) => api.post("/cart", data);
+export const addToCart = (data) => api.post("/cart/add", data);
 export const removeFromCart = (id) => api.delete(`/cart/${id}`);
-
+export const updateCartItem = async (id, data) => { const res = await api.put(`/cart/${id}`, data); return res; };
 // ✅ Orders
 export const getOrders = () => api.get("/orders");
 export const createOrder = (data) => api.post("/orders", data);
@@ -28,6 +36,7 @@ export const makePayment = (data) => api.post("/payments", data);
 // ✅ Admin
 export const getAdminDashboard = () => api.get("/admin/dashboard");
 export const  adminCreateProduct = (data) => api.post("/admin/products", data);
+export const uploadImages = (formData) => api.post("/upload", formData, { headers: { "Content-Type": "multipart/form-data" },});
 export const  adminUpdateProduct = (id, data) => api.put(`/admin/products/${id}`, data);
 export const  adminDeleteProduct = (id) => api.delete(`/admin/products/${id}`);
 export const  adminGetProducts = () => api.get("/admin/products");
@@ -64,8 +73,11 @@ export default {
   getProfile,
   getProducts,
   getProductById,
+    searchProducts,
+    getProductsByCategory,
 adminCreateProduct,
     adminUpdateProduct,
+    uploadImages,
     adminDeleteProduct,
     adminGetProducts,
     adminGetProductById,
@@ -86,6 +98,7 @@ adminCreateProduct,
   getCart,
   addToCart,
   removeFromCart,
+    updateCartItem,
   getOrders,
   createOrder,
   makePayment,

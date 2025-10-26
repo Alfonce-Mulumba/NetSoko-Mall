@@ -25,7 +25,7 @@ export default function ProductList() {
         });
         setProducts(res.data.products || []);
       } else {
-        res = await api.getProducts({ limit: 24, sort });
+        res = await api.getProducts({ limit: 50, sort });
         setProducts(res.data || []);
       }
     } catch (err) {
@@ -154,11 +154,16 @@ export default function ProductList() {
                   )}
 
                   {/* Product Image */}
-                  <img
-                    src={p.image || p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
-                    alt={p.name}
-                    className="w-full h-40 object-cover group-hover:scale-105 transition-transform"
-                  />
+<img
+  src={
+    Array.isArray(p.images)
+      ? (p.images[0]?.url || p.images[0] || "/placeholder.png")
+      : (p.image || "/placeholder.png")
+  }
+  alt={p.name}
+  className="w-full h-40 object-cover group-hover:scale-105 transition-transform"
+/>
+
 
                   {/* Info */}
                   <div className="p-3 text-center">

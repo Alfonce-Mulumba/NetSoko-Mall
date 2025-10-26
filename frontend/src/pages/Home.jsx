@@ -8,14 +8,17 @@ export default function Home() {
   const scrollRef = useRef(null);
   const nav = useNavigate();
 
-  // ✅ Fetch public products only
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await api.getProducts({ limit: 12 });
-        setProducts(res.data.products || []);
+        // ✅ Handle different response shapes
+        const data =
+          res.data?.products || res.data || [];
+        setProducts(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error fetching products:", err);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -23,7 +26,6 @@ export default function Home() {
     fetchProducts();
   }, []);
 
-  // ✅ Smooth horizontal auto-scroll
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -32,7 +34,6 @@ export default function Home() {
       if (container.scrollWidth <= container.clientWidth) return;
       container.scrollBy({ left: 250, behavior: "smooth" });
 
-      // Loop back to start
       if (
         container.scrollLeft + container.clientWidth >=
         container.scrollWidth - 10
@@ -82,6 +83,9 @@ export default function Home() {
               const discountedPrice = hasDiscount
                 ? p.price - (p.price * p.discount) / 100
                 : p.price;
+              const imageSrc = Array.isArray(p.images)
+                ? p.images[0]?.url || p.images[0] || "/placeholder.png"
+                : p.image || "/placeholder.png";
 
               return (
                 <div
@@ -94,7 +98,7 @@ export default function Home() {
                     </span>
                   )}
                   <img
-                    src={p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
+                    src={imageSrc}
                     alt={p.name}
                     className="w-full h-24 object-cover rounded-t-lg"
                   />
@@ -120,93 +124,72 @@ export default function Home() {
         </div>
       </section>
 
-{/* ================= FEATURED PRODUCTS ================= */}
-<section className="px-6 md:px-16 py-10">
-  <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100 text-center md:text-left">
-    Featured Products
-  </h2>
+      {/* ================= FEATURED PRODUCTS ================= */}
+      <section className="px-6 md:px-16 py-10">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100 text-center md:text-left">
+          Featured Products
+        </h2>
 
-  {loading ? (
-    <p className="text-gray-600 dark:text-gray-400 text-center">
-      Loading products...
-    </p>
-  ) : (
-    (() => {
-      // ✅ define your size preference here: "small", "medium", or "large"
-      const size = "small";
+        {loading ? (
+          <p className="text-gray-600 dark:text-gray-400 text-center">
+            Loading products...
+          </p>
+        ) : (
+          <div className="grid gap-1 grid-cols-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
+            {products.map((p) => {
+              const hasDiscount = p.discount && p.discount > 0;
+              const discountedPrice = hasDiscount
+                ? p.price - (p.price * p.discount) / 100
+                : p.price;
+              const imageSrc = Array.isArray(p.images)
+                ? p.images[0]?.url || p.images[0] || "/placeholder.png"
+                : p.image || "/placeholder.png";
 
-      const gridClasses =
-        size === "small"
-          ? "grid-cols-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7"
-          : size === "medium"
-          ? "grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7"
-          : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
-
-      const cardSize = {
-        small: { minWidth: "max-w-[200px]", imageHeight: "max-h-24", padding: "p-0", text: "text-xs" },
-        medium: { minWidth: "min-w-[180px]", imageHeight: "h-36", padding: "p-3", text: "text-sm" },
-        large: { minWidth: "min-w-[220px]", imageHeight: "h-44", padding: "p-4", text: "text-base" },
-      }[size];
-
-      return (
-        <div className={`grid gap-1 ${gridClasses}`}>
-          {products.map((p) => {
-            const hasDiscount = p.discount && p.discount > 0;
-            const discountedPrice = hasDiscount
-              ? p.price - (p.price * p.discount) / 100
-              : p.price;
-
-            return (
-              <div
-                key={p.id}
-                className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all relative group overflow-hidden ${cardSize.minWidth}`}
-              >
-                {hasDiscount && (
-                  <span className="absolute top-2 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                    -{p.discount}%
-                  </span>
-                )}
-
-                <img
-                  src={p.images?.[0]?.url || p.images?.[0] || "/placeholder.png"}
-                  alt={p.name}
-                  className={`w-full ${cardSize.imageHeight} object-cover group-hover:scale-105 transition-transform duration-300`}
-                />
-
-                <div className={`text-center ${cardSize.padding}`}>
-                  <h3
-                    className={`font-semibold text-gray-800 dark:text-gray-200 truncate ${cardSize.text}`}
-                  >
-                    {p.name}
-                  </h3>
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1 mb-1">
-                    {p.description}
-                  </p>
-                  <div className="flex flex-col items-center">
-                    {hasDiscount && (
-                      <span className="text-[11px] text-red-500 line-through">
-                        Ksh {p.price.toLocaleString()}
-                      </span>
-                    )}
-                    <span className="font-bold text-blue-700 dark:text-blue-400 text-xs sm:text-sm">
-                      Ksh {discountedPrice.toLocaleString()}
+              return (
+                <div
+                  key={p.id}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all relative group overflow-hidden max-w-[200px]"
+                >
+                  {hasDiscount && (
+                    <span className="absolute top-2 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                      -{p.discount}%
                     </span>
+                  )}
+                  <img
+                    src={imageSrc}
+                    alt={p.name}
+                    className="w-full max-h-24 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="text-center p-2">
+                    <h3 className="font-semibold text-gray-800 dark:text-gray-200 truncate text-xs">
+                      {p.name}
+                    </h3>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1 mb-1">
+                      {p.description}
+                    </p>
+                    <div className="flex flex-col items-center">
+                      {hasDiscount && (
+                        <span className="text-[11px] text-red-500 line-through">
+                          Ksh {p.price.toLocaleString()}
+                        </span>
+                      )}
+                      <span className="font-bold text-blue-700 dark:text-blue-400 text-xs sm:text-sm">
+                        Ksh {discountedPrice.toLocaleString()}
+                      </span>
+                    </div>
+                    <Link
+                      to={`/products/${p.id}`}
+                      className="text-green-600 dark:text-green-400 text-[11px] mt-2 inline-block hover:underline"
+                    >
+                      View Details
+                    </Link>
                   </div>
-                  <Link
-                    to={`/products/${p.id}`}
-                    className="text-green-600 dark:text-green-400 text-[11px] mt-2 inline-block hover:underline"
-                  >
-                    View Details
-                  </Link>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      );
-    })()
-  )}
-</section>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

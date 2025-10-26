@@ -1,4 +1,3 @@
-// frontend/src/pages/Cart.jsx
 import React, { useContext, useState, useMemo } from "react";
 import { CartContext } from "../context/CartContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,7 +9,7 @@ export default function Cart() {
   const [shippingMode, setShippingMode] = useState("pickup"); // pickup | delivery
   const nav = useNavigate();
 
-  // Compute subtotal with discount
+  // ✅ Compute subtotal
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => {
       const price = item.product?.price || 0;
@@ -21,7 +20,6 @@ export default function Cart() {
     }, 0);
   }, [items]);
 
-  // Compute shipping dynamically
   const shippingCost = shippingMode === "delivery" ? 500 : 0;
   const total = subtotal + shippingCost;
 
@@ -50,7 +48,7 @@ export default function Cart() {
         </div>
       ) : (
         <div className="space-y-8">
-          {/* ===== CART ITEMS TABLE ===== */}
+          {/* ===== CART TABLE ===== */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
             <table className="w-full text-sm md:text-base">
               <thead className="border-b border-gray-200 dark:border-gray-700">
@@ -63,10 +61,15 @@ export default function Cart() {
               </thead>
               <tbody>
                 {items.map((item) => {
-                  const price = item.product?.price || 0;
-                  const discount = item.product?.discount || 0;
+                  const p = item.product || {};
+                  const price = p.price || 0;
+                  const discount = p.discount || 0;
                   const discountedPrice =
                     discount > 0 ? price - (price * discount) / 100 : price;
+
+                  const imageUrl = Array.isArray(p.images)
+                    ? (p.images[0]?.url || p.images[0] || PLACEHOLDER_URL)
+                    : (p.image || PLACEHOLDER_URL);
 
                   return (
                     <tr
@@ -75,21 +78,17 @@ export default function Cart() {
                     >
                       <td className="flex items-center gap-4 py-4 px-4 md:px-6">
                         <img
-                          src={
-                            item.product?.images?.[0]?.url ||
-                            item.product?.image ||
-                            PLACEHOLDER_URL
-                          }
-                          alt={item.product?.name}
+                          src={imageUrl}
+                          alt={p.name}
                           className="w-16 h-16 object-contain rounded bg-gray-100 dark:bg-gray-700"
                           onError={(e) => (e.target.src = PLACEHOLDER_URL)}
                         />
                         <div>
                           <h3 className="font-semibold text-gray-800 dark:text-gray-100">
-                            {item.product?.name}
+                            {p.name}
                           </h3>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {item.product?.description || "No description"}
+                            {p.description || "No description"}
                           </p>
                         </div>
                       </td>
@@ -157,7 +156,6 @@ export default function Cart() {
               <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-4">
                 Choose shipping mode:
               </h4>
-
               <div className="space-y-3 text-sm">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -174,7 +172,6 @@ export default function Cart() {
                     <span className="text-green-500 ml-2">FREE</span>
                   </div>
                 </label>
-
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="radio"

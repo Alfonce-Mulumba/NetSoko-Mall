@@ -41,8 +41,19 @@ export default function ProductDetails() {
     if (quantity > product.stock)
       return alert(`Only ${product.stock} left in stock`);
 
+    const basePrice = Number(product.price);
+    const discount = Number(product.discount) || 0;
+    const discountedPrice =
+      discount > 0 ? basePrice - (basePrice * discount) / 100 : basePrice;
+
     try {
-      await add(product.id, quantity, selectedColor, selectedSize);
+      await add(
+        product.id,
+        quantity,
+        selectedColor,
+        selectedSize,
+        discountedPrice
+      );
       if (buyNow) navigate("/checkout");
       else alert("Added to cart!");
     } catch (err) {
@@ -68,11 +79,12 @@ export default function ProductDetails() {
       </div>
     );
 
-  const kshPrice = (product.price * 145).toLocaleString();
-  const discountPrice = product.discount
-    ? (product.price * (1 - product.discount / 100)).toFixed(2)
-    : null;
-  const kshDiscount = discountPrice && (discountPrice * 145).toLocaleString();
+  // ✅ Prices are already in KES, no exchange rate
+  const basePriceKsh = Number(product.price).toLocaleString();
+  const discountedPriceKsh =
+    product.discount && product.discount > 0
+      ? (product.price * (1 - product.discount / 100)).toLocaleString()
+      : null;
 
   return (
     <div className="max-w-6xl mx-auto p-4 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -121,7 +133,10 @@ export default function ProductDetails() {
                   i < Math.round(avgRating) ? (
                     <FaStar key={i} className="text-yellow-400" />
                   ) : (
-                    <FaRegStar key={i} className="text-gray-400 dark:text-gray-500" />
+                    <FaRegStar
+                      key={i}
+                      className="text-gray-400 dark:text-gray-500"
+                    />
                   )
                 )}
               <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
@@ -132,14 +147,14 @@ export default function ProductDetails() {
             {/* Price */}
             <div className="mb-4">
               <p className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
-                Ksh {kshDiscount || kshPrice}
+                Ksh {discountedPriceKsh || basePriceKsh}
               </p>
-              {kshDiscount && (
+              {discountedPriceKsh && (
                 <p className="text-gray-400 line-through text-lg">
-                  Ksh {kshPrice}
+                  Ksh {basePriceKsh}
                 </p>
               )}
-              {product.discount && (
+              {product.discount > 0 && (
                 <p className="text-green-600 dark:text-green-400 font-medium mt-1">
                   -{product.discount}% off
                 </p>

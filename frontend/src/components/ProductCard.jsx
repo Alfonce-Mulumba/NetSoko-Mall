@@ -33,12 +33,12 @@ export default function ProductCard({ product }) {
 
       <div className="w-full h-32 flex items-center justify-center mb-2">
         <img
-          src={
-            product.images?.[0]?.url ||
-            product.images?.[0] ||
-            product.image ||
-            "/placeholder.png"
-          }
+         src={
+  // p.images might be: [{ url: "..." }] or ["..."] or undefined
+  Array.isArray(p.images)
+    ? (p.images[0]?.url || p.images[0] || "/placeholder.png")
+    : (p.image || "/placeholder.png")
+}
           alt={product.name || "Product"}
           className="max-h-28 max-w-full object-contain rounded"
           onError={(e) => (e.target.src = "/placeholder.png")}
