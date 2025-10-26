@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
 "scripts": {
-  "preinstall": "node -e \"process.platform!=='win32' && require('child_process').execSync('chmod +x node_modules/.bin/* || true')\"",
+  "prebuild": "chmod +x node_modules/.bin/vite || true",
+  "build": "npm run prebuild && vite build",
   "dev": "vite",
-  "build": "node -e \"process.platform!=='win32' && require('child_process').execSync('chmod +x node_modules/.bin/* || true'); require('child_process').execSync('npx vite build', {stdio: 'inherit'})\"",
   "preview": "vite preview"
 },
 
@@ -28,5 +28,8 @@
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.4.3"
-  }
+  },
+  "engines": {
+  "node": "20.x"
+}
 }
