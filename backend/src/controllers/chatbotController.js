@@ -4,6 +4,8 @@ import { prisma } from "../config/db.js";
 export const checkOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.body;
+    const userId = req.user.id;
+
     if (!orderId) return res.status(400).json({ message: "Order ID is required" });
 
     const order = await prisma.order.findUnique({
@@ -24,15 +26,16 @@ export const checkOrderStatus = async (req, res) => {
       })),
     });
   } catch (err) {
-    res.status(500).json({ message: "Error checking order status, try again", error: err.message });
+    res.status(500).json({ message: "Error checking order status", error: err.message });
   }
 };
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.sendgrid.net",
+  port: 587,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: "apikey", // SendGrid requires literal 'apikey' as username
+    pass: process.env.SENDGRID_API_KEY,
   },
 });
 
@@ -40,6 +43,7 @@ export const reportProblem = async (req, res) => {
   try {
     const userId = req.user.id;
     const { message } = req.body;
+
     if (!message) return res.status(400).json({ message: "Message is required" });
 
     const complaint = await prisma.complaint.create({
@@ -47,15 +51,17 @@ export const reportProblem = async (req, res) => {
       include: { user: true },
     });
 
+    // Notify admin
     await transporter.sendMail({
-      from: `"NetSoko Chatbot" <${process.env.EMAIL_USER}>`,
+      from: process.env.SENDGRID_SENDER,
       to: process.env.ADMIN_EMAIL,
       subject: `🚨 New Complaint from ${complaint.user.email}`,
       text: `Complaint ID: ${complaint.id}\nUser: ${complaint.user.email}\n\n${complaint.message}`,
     });
 
+    // Acknowledge user
     await transporter.sendMail({
-      from: `"NetSoko Support" <${process.env.EMAIL_USER}>`,
+      from: process.env.SENDGRID_SENDER,
       to: complaint.user.email,
       subject: "Your complaint has been received",
       text: `Hello ${complaint.user.name},\n\nWe’ve received your complaint:\n"${complaint.message}"\n\nOur support team will reach out shortly.\n\nComplaint ID: ${complaint.id}`,
@@ -69,4 +75,3 @@ export const reportProblem = async (req, res) => {
     res.status(500).json({ message: "Error reporting problem", error: err.message });
   }
 };
-

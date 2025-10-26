@@ -28,6 +28,7 @@ model User {
   deliveryAddress        DeliveryAddress[]
   orders                 Order[]
   reviews                Review[] // user's reviews (optional relation)
+  passwordReset  PasswordReset?
 }
 
 model Product {
@@ -151,4 +152,11 @@ model Review {
 
   product Product @relation(fields: [productId], references: [id])
   user    User?   @relation(fields: [userId], references: [id])
+}
+
+model PasswordReset {
+  userId   Int     @unique
+  token    String
+  createdAt DateTime @default(now())
+  user     User    @relation(fields: [userId], references: [id])
 }

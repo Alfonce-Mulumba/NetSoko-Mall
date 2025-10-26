@@ -27,13 +27,13 @@ const app = express();
 app.set("trust proxy", 1);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ✅ Basic middleware
+// Basic middleware
 app.use(helmet());
 app.use(express.json({ limit: "200kb" }));
 app.use(express.urlencoded({ extended: true, limit: "200kb" }));
 const allowedOrigins= [
-  "https://netsoko-mall-1.onrender.com", // ✅ your frontend on Render
-  "http://localhost:5173",              // ✅ for local dev testing
+  "https://netsoko-mall-1.onrender.com",
+  "http://localhost:5173",
 ];
 
 app.use(
@@ -44,7 +44,7 @@ app.use(
 );
 app.use(generalLimiter);
 
-// ✅ Routes
+//Routes
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/payments", paymentRoutes);

@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { sendMail } from "../utils/email.js";
 
 export const createComplaint = async (req, res) => {
   try {
@@ -11,6 +12,26 @@ export const createComplaint = async (req, res) => {
         message,
       },
     });
+
+    try {
+      await sendMail({
+        to: process.env.ADMIN_EMAIL || "netsoko.care@gmail.com",
+        subject: `New complaint from ${req.user.name}`,
+        text: message,
+      });
+    } catch (err) {
+      console.error("Failed to send admin email:", err.message);
+    }
+
+    try {
+      await sendMail({
+        to: req.user.email,
+        subject: "Complaint received",
+        text: `Hi ${req.user.name}, we received your complaint: ${message}`,
+      });
+    } catch (err) {
+      console.error("Failed to send user confirmation email:", err.message);
+    }
 
     res.status(201).json({ message: "Complaint submitted", complaint });
   } catch (err) {
