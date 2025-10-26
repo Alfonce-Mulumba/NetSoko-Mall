@@ -1,21 +1,27 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useNavigate, Link } from "react-router-dom";
-import logoBlack from "../assets/logoBlack.jpg"; // 👈 import your logo
+import { toast } from "react-toastify";
+import logoBlack from "../assets/logoBlack.jpg";
 
 export default function RegisterPage() {
   const { register } = useContext(AuthContext);
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [loading, setLoading] = useState(false);
   const nav = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const { user } = await register(form);
-      alert("Regitration successful. Check your email for verification code!");
+      setLoading(false);
+      toast.success("Registration successful. Verification code sent to your email! Consider checking your spam folder");
       nav("/verify", { state: { email: form.email } });
     } catch (err) {
-      alert(err?.response?.data?.message || "Error registering");
+      setLoading(false);
+      const msg = err?.response?.data?.message || "Error registering";
+      toast.error(`❌ ${msg}`);
     }
   };
 
@@ -31,7 +37,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Title */}
         <h2 className="text-2xl font-bold text-center mb-2 text-gray-800 dark:text-gray-100">
           Create Account
         </h2>
@@ -45,7 +50,6 @@ export default function RegisterPage() {
           </Link>
         </p>
 
-        {/* Form */}
         <form onSubmit={submit} className="space-y-4">
           <input
             required
@@ -79,9 +83,12 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-xl shadow hover:opacity-90 transition"
+            disabled={loading}
+            className={`w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-xl shadow hover:opacity-90 transition ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Sign Up
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
       </div>

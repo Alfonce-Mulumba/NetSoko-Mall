@@ -78,7 +78,7 @@ export default function ChatbotWidget() {
       setLoading(true);
       appendMessage("bot", "⏳ Sending report...");
       try {
-        const res = await api.reportProblem({ message: userMsg });
+        const res = await api.createComplaint({ message: userMsg });
         setMessages((prev) => prev.slice(0, -1));
         typeBotMessage(
           res.data.message ||

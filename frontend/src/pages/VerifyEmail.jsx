@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/index.js";
+import { toast } from "react-toastify";
 import logoBlack from "../assets/logoBlack.jpg";
 
 export default function VerifyEmail() {
@@ -8,19 +9,29 @@ export default function VerifyEmail() {
   const query = new URLSearchParams(search);
   const email = state?.email || query.get("email") || "";
   const nav = useNavigate();
-  const [code, setCode] = useState(query.get("code") || "");
+
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (email) {
+      // Auto resend code on page load
+      api.resend({ email })
+        .then(() => toast.info("📨 Verification code sent automatically."))
+        .catch((err) => console.error("Auto resend error:", err));
+    }
+  }, [email]);
 
   const verify = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.verify({ email, code });
-      setMessage("✅ Verified! You can now log in.");
+      await api.verify({ email, code });
+      toast.success("✅ Email verified! Redirecting to login...");
       setTimeout(() => nav("/login"), 1500);
     } catch (err) {
-      setMessage(err?.response?.data?.message || "❌ Verification failed");
+      console.error("Verify error:", err);
+      toast.error(err?.response?.data?.message || "❌ Verification failed");
     } finally {
       setLoading(false);
     }
@@ -29,9 +40,10 @@ export default function VerifyEmail() {
   const resendCode = async () => {
     try {
       await api.resend({ email });
-      setMessage("📨 A new code has been sent to your email.");
+      toast.info("📨 A new verification code has been sent.");
     } catch (err) {
-      setMessage(err?.response?.data?.message || "❌ Failed to resend code");
+      console.error("Resend error:", err);
+      toast.error(err?.response?.data?.message || "❌ Failed to resend code");
     }
   };
 
@@ -40,25 +52,11 @@ export default function VerifyEmail() {
       <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
         <div className="flex flex-col items-center mb-6">
           <img src={logoBlack} alt="Logo" className="w-16 h-16 rounded-full mb-3" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Verify Your Email
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Verify Your Email</h2>
           <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
             Verification code sent to <b>{email}</b>
           </p>
         </div>
-
-        {message && (
-          <p
-            className={`mb-4 text-sm p-2 rounded ${
-              message.startsWith("✅") || message.startsWith("📨")
-                ? "text-green-700 bg-green-50 dark:bg-green-900 dark:text-green-300"
-                : "text-red-700 bg-red-50 dark:bg-red-900 dark:text-red-300"
-            }`}
-          >
-            {message}
-          </p>
-        )}
 
         <form onSubmit={verify} className="space-y-4">
           <input
@@ -66,9 +64,7 @@ export default function VerifyEmail() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="Enter verification code"
-            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700
-                       border-gray-300 dark:border-gray-600
-                       text-gray-900 dark:text-gray-100"
+            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
           />
           <button
             type="submit"
