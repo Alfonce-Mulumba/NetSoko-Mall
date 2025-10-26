@@ -12,9 +12,7 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         const res = await api.getProducts({ limit: 12 });
-        // ✅ Handle different response shapes
-        const data =
-          res.data?.products || res.data || [];
+        const data = res.data?.products || res.data || [];
         setProducts(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -49,7 +47,7 @@ export default function Home() {
   }, [products]);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 transition min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900 transition min-h-screen overflow-x-hidden">
       {/* ================= HERO SECTION ================= */}
       <section className="bg-gradient-to-r from-blue-900 to-green-700 text-white py-16 px-6 md:px-16 flex flex-col md:flex-row gap-10 items-center justify-between overflow-hidden">
         <div className="flex-1 text-center md:text-left">
@@ -68,59 +66,61 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Auto-scrolling gallery */}
-        <div
-          ref={scrollRef}
-          className="flex flex-nowrap gap-1 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-700 flex-1 py-4"
-        >
-          {loading ? (
-            <p className="text-gray-300">Loading products...</p>
-          ) : products.length === 0 ? (
-            <p className="text-gray-300">No products available</p>
-          ) : (
-            products.map((p) => {
-              const hasDiscount = p.discount && p.discount > 0;
-              const discountedPrice = hasDiscount
-                ? p.price - (p.price * p.discount) / 100
-                : p.price;
-              const imageSrc = Array.isArray(p.images)
-                ? p.images[0]?.url || p.images[0] || "/placeholder.png"
-                : p.image || "/placeholder.png";
+        {/* ✅ FIX: Wrapped scroll container with full-width limit & overflow hidden */}
+        <div className="flex-1 w-full max-w-full overflow-hidden">
+          <div
+            ref={scrollRef}
+            className="flex flex-nowrap gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-700 py-4 w-full max-w-full"
+          >
+            {loading ? (
+              <p className="text-gray-300">Loading products...</p>
+            ) : products.length === 0 ? (
+              <p className="text-gray-300">No products available</p>
+            ) : (
+              products.map((p) => {
+                const hasDiscount = p.discount && p.discount > 0;
+                const discountedPrice = hasDiscount
+                  ? p.price - (p.price * p.discount) / 100
+                  : p.price;
+                const imageSrc = Array.isArray(p.images)
+                  ? p.images[0]?.url || p.images[0] || "/placeholder.png"
+                  : p.image || "/placeholder.png";
 
-              return (
-                <div
-                  key={p.id}
-                  className="w-[120px] bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition flex-shrink-0 relative"
-                >
-                  {hasDiscount && (
-                    <span className="absolute top-2 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                      -{p.discount}%
-                    </span>
-                  )}
-                  <img
-                    src={imageSrc}
-                    alt={p.name}
-                    className="w-full h-24 object-cover rounded-t-lg"
-                  />
-                  <div className="p-2 text-center">
-                    <h3 className="font-semibold text-xs text-gray-800 dark:text-gray-100 truncate">
-                      {p.name}
-                    </h3>
-                    <div className="text-xs text-gray-600 dark:text-gray-300">
-                      {hasDiscount && (
-                        <span className="line-through text-red-500 mr-1">
-                          Ksh {p.price.toLocaleString()}
-                        </span>
-                      )}
-                      <span className="font-bold text-blue-700 dark:text-blue-400">
-                        Ksh {discountedPrice.toLocaleString()}
+                return (
+                  <div
+                    key={p.id}
+                    className="w-[120px] bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition flex-shrink-0 relative"
+                  >
+                    {hasDiscount && (
+                      <span className="absolute top-2 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                        -{p.discount}%
                       </span>
+                    )}
+                    <img
+                      src={imageSrc}
+                      alt={p.name}
+                      className="w-full h-24 object-cover rounded-t-lg"
+                    />
+                    <div className="p-2 text-center">
+                      <h3 className="font-semibold text-xs text-gray-800 dark:text-gray-100 truncate">
+                        {p.name}
+                      </h3>
+                      <div className="text-xs text-gray-600 dark:text-gray-300">
+                        {hasDiscount && (
+                          <span className="line-through text-red-500 mr-1">
+                            Ksh {p.price.toLocaleString()}
+                          </span>
+                        )}
+                        <span className="font-bold text-blue-700 dark:text-blue-400">
+                          Ksh {discountedPrice.toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
       </section>
 
