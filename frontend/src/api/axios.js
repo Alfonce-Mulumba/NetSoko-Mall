@@ -8,17 +8,41 @@ const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+// ✅ Custom events to trigger global loading
+const showLoading = () => window.dispatchEvent(new CustomEvent("loading:start"));
+const hideLoading = () => window.dispatchEvent(new CustomEvent("loading:end"));
+
+api.interceptors.request.use(
+  (config) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (e) {
+      console.warn("Axios interceptor error:", e);
     }
-  } catch (e) {
-    // don't crash if localStorage access fails
-    console.warn("Axios interceptor error:", e);
+
+    // Trigger global spinner
+    showLoading();
+
+    return config;
+  },
+  (err) => {
+    hideLoading();
+    return Promise.reject(err);
   }
-  return config;
-}, (err) => Promise.reject(err));
+);
+
+api.interceptors.response.use(
+  (res) => {
+    hideLoading();
+    return res;
+  },
+  (err) => {
+    hideLoading();
+    return Promise.reject(err);
+  }
+);
 
 export default api;

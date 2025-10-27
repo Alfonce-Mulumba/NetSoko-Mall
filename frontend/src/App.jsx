@@ -6,7 +6,10 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import ChatbotWidget from "./components/ChatbotWidget.jsx";
+import Spinner from "./components/Spinner.jsx"; // ✅ import spinner
+import { useLoading } from "./context/LoadingContext.jsx"; // ✅ import loading context
 
+// Pages
 import Home from "./pages/Home.jsx";
 import ProductList from "./pages/ProductList.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
@@ -19,6 +22,7 @@ import RegisterPage from "./pages/Register.jsx";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPasswordModal from "./components/ResetPasswordModal";
 
+// Admin
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import ManageProducts from "./pages/admin/ManageProducts.jsx";
@@ -26,6 +30,7 @@ import ManageUsers from "./pages/admin/ManageUsers.jsx";
 import ManageOrders from "./pages/admin/ManageOrders.jsx";
 import Analytics from "./pages/admin/Analytics.jsx";
 
+// Misc
 import Categories from "./pages/Categories.jsx";
 import Specials from "./pages/Specials.jsx";
 import About from "./pages/About.jsx";
@@ -42,15 +47,20 @@ function PrivateRoute({ children, role }) {
 }
 
 function App() {
+  const { loading } = useLoading(); // ✅ get loading state
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* ✅ Global Navbar */}
+    <div className="flex flex-col min-h-screen relative">
+      {/* Global spinner */}
+      {loading && <Spinner />}
+
+      {/* Global Navbar */}
       <Navbar />
 
-      {/* ✅ Add top padding so content never hides under navbar */}
+      {/* Main content */}
       <main className="flex-1 pt-[80px] md:pt-[90px] transition-all duration-300">
         <Routes>
-          {/* Public pages */}
+          {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/specials" element={<Specials />} />
@@ -109,7 +119,7 @@ function App() {
         </Routes>
       </main>
 
-      {/* ✅ Global Footer & Chatbot */}
+      {/* Footer & Chatbot */}
       <Footer />
       <ChatbotWidget />
       <ToastContainer position="top-right" autoClose={3000} />
